@@ -2,6 +2,34 @@
 
 ## Recent Changes
 
+### March 17, 2026 - Map Marker Rendering & Positioning Fix
+
+**Problem Solved:** Map markers were floating around, disappearing on zoom/hover, and rushing off screen when the mouse pointer approached them.
+
+**Root Causes:**
+
+1. **Missing Mapbox GL CSS** - Mapbox CSS wasn't properly imported, causing incorrect marker rendering and positioning
+2. **No marker anchor point** - Custom markers had no explicit anchor, causing them to float incorrectly
+3. **Event bubbling issues** - Click/hover events were propagating to the map, triggering unwanted interactions
+4. **Hover animations causing repositioning** - Transform effects and transitions were causing markers to shift position
+5. **Dependency array issue** - Including `location` in markers useEffect caused unnecessary re-renders
+
+**Fixes Applied:**
+
+1. Added Mapbox GL CSS import to [`src/app/globals.css:2`](src/app/globals.css) - `@import 'mapbox-gl/dist/mapbox-gl.css';`
+2. Set explicit `anchor: 'center'` for all markers in [`src/app/map/page.tsx:157-160`](src/app/map/page.tsx)
+3. Added explicit width/height styles to map container in [`src/app/map/page.tsx:208-211`](src/app/map/page.tsx)
+4. Removed hover effects and transform animations that caused position shifts
+5. Fixed markers useEffect dependency array - removed `location` to prevent re-renders on map pan/zoom
+6. Added `pointer-events-none/auto` to overlays to prevent interference with map interactions
+
+**Key Learnings:**
+
+- Mapbox CSS must be imported via npm package (`@import 'mapbox-gl/dist/mapbox-gl.css'`), not CDN link, for Next.js client components
+- Custom Mapbox markers require explicit anchor points (`anchor: 'center'`) to position correctly
+- Hover animations on map markers can cause position instability - keep markers static or use very careful CSS
+- Event propagation must be carefully managed to prevent clicks/hovers from bubbling to the map
+
 ### March 17, 2026 - Seed Data & Search Radius Debug
 
 **Problem Solved:** Events weren't appearing in the feed or map despite seed data being properly inserted into the database.

@@ -113,7 +113,7 @@ export default function MapPage() {
 
    // Add event markers
    useEffect(() => {
-      if (!mapRef.current || !events.length || !location) return
+      if (!mapRef.current || !events.length) return
 
       // Clear existing markers
       markersRef.current.forEach((marker) => marker.remove())
@@ -141,16 +141,16 @@ export default function MapPage() {
         cursor: pointer;
         border: 2px solid white;
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        transition: transform 0.15s;
         user-select: none;
+        will-change: transform;
       `
          el.innerHTML = event.emoji
-         el.addEventListener('click', () => setSelectedEvent(event))
-         el.addEventListener('mouseenter', () => {
-            el.style.transform = 'scale(1.1)'
-         })
-         el.addEventListener('mouseleave', () => {
-            el.style.transform = 'scale(1)'
+
+         // Simple click handler - no hover effects for now
+         el.addEventListener('click', (e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            setSelectedEvent(event)
          })
 
          // Use real coordinates from the database with proper anchor
@@ -163,7 +163,7 @@ export default function MapPage() {
 
          markersRef.current.push(marker)
       })
-   }, [events, location])
+   }, [events])
 
    const handleJoin = async (eventId: string) => {
       try {
@@ -188,11 +188,15 @@ export default function MapPage() {
 
          <main className="flex-1 relative">
             {/* Map container */}
-            <div ref={mapContainerRef} className="absolute inset-0" />
+            <div
+               ref={mapContainerRef}
+               className="absolute inset-0"
+               style={{ width: '100%', height: '100%' }}
+            />
 
             {/* Topbar overlay */}
-            <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-bg to-transparent p-4">
-               <div className="bg-surface/90 backdrop-blur-lg border border-border rounded-full px-4 py-2 flex items-center gap-3 max-w-md">
+            <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-bg to-transparent p-4 pointer-events-none">
+               <div className="bg-surface/90 backdrop-blur-lg border border-border rounded-full px-4 py-2 flex items-center gap-3 max-w-md pointer-events-auto">
                   <h1 className="font-display font-bold text-lg text-purple">Map View</h1>
                   <span className="text-xs text-muted">{events.length} events nearby</span>
                </div>
@@ -200,8 +204,8 @@ export default function MapPage() {
 
             {/* Selected event overlay */}
             {selectedEvent && !attendeeId && (
-               <div className="absolute bottom-4 left-4 right-4 z-10 lg:left-auto lg:right-[320px] lg:max-w-sm">
-                  <div className="bg-surface border border-border rounded-[--radius] p-4">
+               <div className="absolute bottom-4 left-4 right-4 z-10 lg:left-auto lg:right-[320px] lg:max-w-sm pointer-events-none">
+                  <div className="bg-surface border border-border rounded-[--radius] p-4 pointer-events-auto">
                      <div className="flex items-start gap-3">
                         <div className="text-3xl">{selectedEvent.emoji}</div>
                         <div className="flex-1">
