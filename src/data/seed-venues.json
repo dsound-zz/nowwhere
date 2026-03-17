@@ -1,0 +1,322 @@
+[
+  {
+    "name": "Nublu",
+    "address": "151 Ave C, New York, NY 10009",
+    "lat": 40.7264,
+    "lng": -73.9814,
+    "category": "music",
+    "vibe_tags": ["jazz", "late night", "electronic"]
+  },
+  {
+    "name": "Mercury Lounge",
+    "address": "217 E Houston St, New York, NY 10002",
+    "lat": 40.7214,
+    "lng": -73.9876,
+    "category": "music",
+    "vibe_tags": ["indie", "rock", "intimate"]
+  },
+  {
+    "name": "The Slipper Room",
+    "address": "167 Orchard St, New York, NY 10002",
+    "lat": 40.7198,
+    "lng": -73.9885,
+    "category": "music",
+    "vibe_tags": ["cabaret", "live music", "burlesque"]
+  },
+  {
+    "name": "Rockwood Music Hall",
+    "address": "196 Allen St, New York, NY 10002",
+    "lat": 40.7218,
+    "lng": -73.9892,
+    "category": "music",
+    "vibe_tags": ["indie", "acoustic", "emerging artists"]
+  },
+  {
+    "name": "Pianos",
+    "address": "158 Ludlow St, New York, NY 10002",
+    "lat": 40.7215,
+    "lng": -73.9881,
+    "category": "music",
+    "vibe_tags": ["rock", "indie", "dance"]
+  },
+  {
+    "name": "Arlene's Grocery",
+    "address": "95 Stanton St, New York, NY 10002",
+    "lat": 40.722,
+    "lng": -73.9877,
+    "category": "music",
+    "vibe_tags": ["punk", "rock", "open mic"]
+  },
+  {
+    "name": "Howl Arts Collective",
+    "address": "6 E 1st St, New York, NY 10003",
+    "lat": 40.7231,
+    "lng": -73.9921,
+    "category": "art",
+    "vibe_tags": ["creative", "workshop", "community"]
+  },
+  {
+    "name": "Essex Market",
+    "address": "88 Essex St, New York, NY 10002",
+    "lat": 40.7182,
+    "lng": -73.9883,
+    "category": "food",
+    "vibe_tags": ["market", "diverse", "local"]
+  },
+  {
+    "name": "Katz's Delicatessen",
+    "address": "205 E Houston St, New York, NY 10002",
+    "lat": 40.7223,
+    "lng": -73.9872,
+    "category": "food",
+    "vibe_tags": ["deli", "iconic", "pastrami"]
+  },
+  {
+    "name": "Russ & Daughters Cafe",
+    "address": "127 Orchard St, New York, NY 10002",
+    "lat": 40.7206,
+    "lng": -73.9889,
+    "category": "food",
+    "vibe_tags": ["bagels", "jewish", "brunch"]
+  },
+  {
+    "name": "Clinton Street Baking Company",
+    "address": "4 Clinton St, New York, NY 10002",
+    "lat": 40.7211,
+    "lng": -73.984,
+    "category": "food",
+    "vibe_tags": ["brunch", "pancakes", "cozy"]
+  },
+  {
+    "name": "Ivan Ramen",
+    "address": "25 Clinton St, New York, NY 10002",
+    "lat": 40.7214,
+    "lng": -73.9838,
+    "category": "food",
+    "vibe_tags": ["ramen", "japanese", "noodles"]
+  },
+  {
+    "name": "Doughnut Plant",
+    "address": "379 Grand St, New York, NY 10002",
+    "lat": 40.7177,
+    "lng": -73.9848,
+    "category": "food",
+    "vibe_tags": ["donuts", "sweets", "coffee"]
+  },
+  {
+    "name": "Economy Candy",
+    "address": "108 Rivington St, New York, NY 10002",
+    "lat": 40.7211,
+    "lng": -73.9887,
+    "category": "food",
+    "vibe_tags": ["candy", "vintage", "nostalgia"]
+  },
+  {
+    "name": "The Meatball Shop",
+    "address": "84 Stanton St, New York, NY 10002",
+    "lat": 40.722,
+    "lng": -73.988,
+    "category": "food",
+    "vibe_tags": ["meatballs", "casual", "italian"]
+  },
+  {
+    "name": "Vanessa's Dumpling House",
+    "address": "118 Eldridge St, New York, NY 10002",
+    "lat": 40.719,
+    "lng": -73.9908,
+    "category": "food",
+    "vibe_tags": ["dumplings", "cheap eats", "chinese"]
+  },
+  {
+    "name": "Schiller's Liquor Bar",
+    "address": "131 Rivington St, New York, NY 10002",
+    "lat": 40.7209,
+    "lng": -73.9885,
+    "category": "food",
+    "vibe_tags": ["bistro", "cocktails", "french"]
+  },
+  {
+    "name": "Max Fish",
+    "address": "120 Orchard St, New York, NY 10002",
+    "lat": 40.7206,
+    "lng": -73.989,
+    "category": "social",
+    "vibe_tags": ["dive bar", "art", "punk"]
+  },
+  {
+    "name": "Neighbours",
+    "address": "438 E 9th St, New York, NY 10009",
+    "lat": 40.7276,
+    "lng": -73.9823,
+    "category": "social",
+    "vibe_tags": ["trivia", "neighborhood", "chill"]
+  },
+  {
+    "name": "The Ten Bells",
+    "address": "247 Broome St, New York, NY 10002",
+    "lat": 40.7181,
+    "lng": -73.9916,
+    "category": "social",
+    "vibe_tags": ["wine bar", "tapas", "intimate"]
+  },
+  {
+    "name": "Black Rabbit",
+    "address": "91 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7297,
+    "lng": -73.9583,
+    "category": "social",
+    "vibe_tags": ["cocktails", "speakeasy", "cozy"]
+  },
+  {
+    "name": "Welcome to the Johnsons",
+    "address": "123 Rivington St, New York, NY 10002",
+    "lat": 40.721,
+    "lng": -73.9886,
+    "category": "social",
+    "vibe_tags": ["dive bar", "rec room", "retro"]
+  },
+  {
+    "name": "Beauty Bar",
+    "address": "231 E 14th St, New York, NY 10003",
+    "lat": 40.7318,
+    "lng": -73.9847,
+    "category": "social",
+    "vibe_tags": ["retro", "salon", "dance"]
+  },
+  {
+    "name": "The DL",
+    "address": "95 Delancey St, New York, NY 10002",
+    "lat": 40.7185,
+    "lng": -73.9887,
+    "category": "social",
+    "vibe_tags": ["lounge", "rooftop", "cocktails"]
+  },
+  {
+    "name": "Tompkins Square Park",
+    "address": "E 7th St & Avenue A, New York, NY 10009",
+    "lat": 40.7267,
+    "lng": -73.9815,
+    "category": "sport",
+    "vibe_tags": ["park", "outdoor", "basketball"]
+  },
+  {
+    "name": "Seward Park",
+    "address": "Essex St, New York, NY 10002",
+    "lat": 40.7156,
+    "lng": -73.9901,
+    "category": "sport",
+    "vibe_tags": ["basketball", "outdoor", "pickup"]
+  },
+  {
+    "name": "East River Park",
+    "address": "FDR Dr, New York, NY 10002",
+    "lat": 40.715,
+    "lng": -73.975,
+    "category": "sport",
+    "vibe_tags": ["running", "biking", "waterfront"]
+  },
+  {
+    "name": "Brooklyn Boulders",
+    "address": "575 Degraw St, Brooklyn, NY 11217",
+    "lat": 40.679,
+    "lng": -73.9844,
+    "category": "sport",
+    "vibe_tags": ["climbing", "fitness", "community"]
+  },
+  {
+    "name": "Overthrow Boxing Club",
+    "address": "9 Bleecker St, New York, NY 10012",
+    "lat": 40.7254,
+    "lng": -73.9927,
+    "category": "sport",
+    "vibe_tags": ["boxing", "fitness", "training"]
+  },
+  {
+    "name": "Ludlow Street Yoga",
+    "address": "135 Eldridge St, New York, NY 10002",
+    "lat": 40.7199,
+    "lng": -73.9905,
+    "category": "sport",
+    "vibe_tags": ["yoga", "wellness", "classes"]
+  },
+  {
+    "name": "Museum at Eldridge Street",
+    "address": "12 Eldridge St, New York, NY 10002",
+    "lat": 40.7146,
+    "lng": -73.9912,
+    "category": "art",
+    "vibe_tags": ["museum", "historic", "architecture"]
+  },
+  {
+    "name": "New Museum",
+    "address": "235 Bowery, New York, NY 10002",
+    "lat": 40.722,
+    "lng": -73.9925,
+    "category": "art",
+    "vibe_tags": ["contemporary", "exhibitions", "cutting edge"]
+  },
+  {
+    "name": "Participant Inc",
+    "address": "253 E Houston St, New York, NY 10002",
+    "lat": 40.7212,
+    "lng": -73.9866,
+    "category": "art",
+    "vibe_tags": ["gallery", "experimental", "artist-run"]
+  },
+  {
+    "name": "Essex Street Market Art Gallery",
+    "address": "88 Essex St, New York, NY 10002",
+    "lat": 40.7182,
+    "lng": -73.9883,
+    "category": "art",
+    "vibe_tags": ["local art", "emerging", "community"]
+  },
+  {
+    "name": "Clemente Soto Velez Cultural Center",
+    "address": "107 Suffolk St, New York, NY 10002",
+    "lat": 40.7192,
+    "lng": -73.987,
+    "category": "art",
+    "vibe_tags": ["theater", "arts", "community"]
+  },
+  {
+    "name": "La Mama Experimental Theatre",
+    "address": "66 E 4th St, New York, NY 10003",
+    "lat": 40.7251,
+    "lng": -73.9907,
+    "category": "art",
+    "vibe_tags": ["theater", "experimental", "off-broadway"]
+  },
+  {
+    "name": "The Bowery Ballroom",
+    "address": "6 Delancey St, New York, NY 10002",
+    "lat": 40.7184,
+    "lng": -73.9936,
+    "category": "music",
+    "vibe_tags": ["concerts", "indie", "historic"]
+  },
+  {
+    "name": "Berlin",
+    "address": "25 Ave A, New York, NY 10009",
+    "lat": 40.7246,
+    "lng": -73.985,
+    "category": "music",
+    "vibe_tags": ["electronic", "dance", "underground"]
+  },
+  {
+    "name": "The Delancey",
+    "address": "168 Delancey St, New York, NY 10002",
+    "lat": 40.7184,
+    "lng": -73.9877,
+    "category": "music",
+    "vibe_tags": ["rooftop", "dj", "cocktails"]
+  },
+  {
+    "name": "Alphabet City Beer Co",
+    "address": "96 Ave C, New York, NY 10009",
+    "lat": 40.7249,
+    "lng": -73.9808,
+    "category": "social",
+    "vibe_tags": ["craft beer", "pub", "garden"]
+  }
+]

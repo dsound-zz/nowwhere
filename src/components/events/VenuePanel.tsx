@@ -73,6 +73,20 @@ export function VenuePanel() {
       }
    }
 
+   const handleReject = async (emailId: string) => {
+      if (!confirm('Are you sure you want to reject this email?')) {
+         return
+      }
+
+      const response = await fetch(`/api/email-queue/${emailId}/reject`, {
+         method: 'POST',
+      })
+
+      if (response.ok) {
+         setEmails(emails.filter((e) => e.id !== emailId))
+      }
+   }
+
    return (
       <>
          {emails.length > 0 && (
@@ -92,12 +106,18 @@ export function VenuePanel() {
                      <div className="flex gap-1.5">
                         <button
                            onClick={() => handleApprove(email.id)}
-                           className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-green text-[#0a1f15]"
+                           className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-green text-[#0a1f15] transition-opacity hover:opacity-90"
                         >
                            ✓ Approve
                         </button>
-                        <button className="text-[10px] font-semibold py-1 px-2.5 rounded-full bg-surface text-muted border border-border2">
+                        <button className="text-[10px] font-semibold py-1 px-2.5 rounded-full bg-surface text-muted border border-border2 cursor-not-allowed opacity-50">
                            Edit
+                        </button>
+                        <button
+                           onClick={() => handleReject(email.id)}
+                           className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-coral text-white transition-opacity hover:opacity-90"
+                        >
+                           ✕ Reject
                         </button>
                      </div>
                   </div>

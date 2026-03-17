@@ -216,6 +216,8 @@ export interface Database {
           status: string
           distance_m: number
           attendee_count: number
+          location_lat: number | null
+          location_lng: number | null
         }[]
       }
     }

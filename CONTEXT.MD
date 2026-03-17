@@ -1,5 +1,49 @@
 # NowHere App - AI Coding Assistant Rules
 
+## Recent Changes
+
+### March 17, 2026 - Seed Data & Search Radius Debug
+
+**Problem Solved:** Events weren't appearing in the feed or map despite seed data being properly inserted into the database.
+
+**Root Cause:**
+
+- User's GPS location (40.692, -73.964) was ~3.9km from seed data locations (Lower East Side: 40.723, -73.987)
+- Feed page search radius was only 1600m (1.6km)
+- Map page search radius was only 3200m (3.2km)
+- Events existed but were outside the search radius
+
+**Fixes Applied:**
+
+1. Increased feed page search radius: `1600m → 5000m` ([`src/app/page.tsx:103`](src/app/page.tsx))
+2. Increased map page search radius: `3200m → 5000m` ([`src/app/map/page.tsx:79`](src/app/map/page.tsx))
+
+**Debugging Process:**
+
+1. Verified seed data was inserted (8 events, 6 venues in database)
+2. Tested `get_nearby_events` SQL function directly - worked correctly
+3. Checked browser console and network requests - no errors
+4. Identified location mismatch in API request logs
+5. Calculated distance between user location and seed data exceeded search radius
+
+**Map Implementation:**
+
+- Uses Mapbox GL JS with dark theme (`mapbox://styles/mapbox/dark-v11`)
+- Event markers: Custom circular pins with emoji icons, color-coded by category
+- Coordinate extraction: PostGIS `ST_X`/`ST_Y` via migration [`20260317190000_add_coords_to_nearby_events.sql`](supabase/migrations/20260317190000_add_coords_to_nearby_events.sql)
+- Data flow: GPS → API → PostGIS function → lat/lng → Mapbox markers
+
+**Seed Data Location:**
+
+- Static seed data (`supabase/seed.sql`) is located in Lower East Side, NYC
+- 6 venues: Nublu, Mercury Lounge, The Slipper Room, Howl Arts, Neighbours Bar, Seward Park Courts
+- 8 events with relative timestamps (`now() + interval 'X hours'`)
+- Run seed data: Copy `supabase/seed.sql` to Supabase SQL Editor and execute
+
+### March 17, 2026 - MVP Completion: Auth, Pages & Features
+
+**Problem Solved:** The app was ~75% complete with missing authentication integration, incomplete user pages (`/my-events`, `/chats`, `/settings`), non-functional filter buttons, and no email rejection flow.
+
 ## Project Overview
 
 NowHere is a frictionless local events app showing what's happening within ~1 mile of the user's current location. Key features include location-based event feeds, real-time chat for event attendees, venue email pipelines for event creation, and automatic event expiry.
@@ -129,9 +173,56 @@ A cron job at `/api/cron/expire-events` runs hourly (configured in vercel.json) 
 - Cron jobs defined in `vercel.json`
 - Environment variables must be set in Vercel dashboard
 
+## Development Tools
+
+### Dev Seeder API
+
+For development and demos, the app includes a seeder API to populate the database with realistic events at real venues near any location.
+
+**Endpoints:**
+
+- `POST /api/dev/seed?lat={lat}&lng={lng}&radius_m=1600&count=10&source=foursquare`
+  - Creates events at real nearby venues
+  - Parameters:
+    - `lat` (required): Latitude
+    - `lng` (required): Longitude
+    - `radius_m` (optional, default 1600): Search radius in meters
+    - `count` (optional, default 10): Number of events to generate
+    - `source` (optional, default 'foursquare'): 'foursquare' or 'static'
+  - Returns: `{ venues_created, events_created, attendees_created, messages_created }`
+
+- `POST /api/dev/reset`
+  - Deletes all seeded events and venues
+  - Returns: `{ events_deleted, venues_deleted }`
+
+**Venue Sources:**
+
+1. **Foursquare Places API** (requires `FOURSQUARE_API_KEY`):
+   - Fetches real venues near the specified location
+   - Automatically categorizes and tags venues
+   - Falls back to static venues if API key is missing or request fails
+
+2. **Static Fallback** (`src/data/seed-venues.json`):
+   - 40 curated NYC (Lower East Side) venues
+   - Used when Foursquare is unavailable or `source=static`
+
+**Event Generation:**
+
+- Events are generated with time-relative `starts_at` and `ends_at` (never stale)
+- 30% already started, 40% starting soon, 30% later tonight
+- Each event gets realistic attendees (0-15 depending on timing)
+- Events with 3+ attendees get chat messages (2-6 messages)
+
+**Example Usage:**
+
+```
+
+**Safety:** These endpoints only work when `NODE_ENV !== 'production'`.
+
 ## Notes
 
 - The app is designed to work without user accounts for browsing
 - Users only provide a name when joining events
 - Events and chats auto-expire after the event ends
 - Location permission is required for the full experience
+```

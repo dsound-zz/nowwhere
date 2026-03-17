@@ -6,6 +6,7 @@ import { EventCard } from '@/components/events/EventCard'
 import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
+import { useAuth } from '@/components/providers/SupabaseProvider'
 
 interface Event {
   id: string
@@ -23,6 +24,8 @@ interface Event {
   distance_m: number
   attendee_count: number
   venue_name?: string | null
+  location_lat?: number | null
+  location_lng?: number | null
 }
 
 interface UserLocation {
@@ -47,12 +50,17 @@ const defaultLocation: UserLocation = {
 }
 
 export default function FeedPage() {
+  const { user } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [location, setLocation] = useState<UserLocation | null>(null)
   const [activeCategory, setActiveCategory] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
+  // Filter state
+  const [rightNowFilter, setRightNowFilter] = useState(false)
+  const [freeOnlyFilter, setFreeOnlyFilter] = useState(false)
+
   // Chat state
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [attendeeId, setAttendeeId] = useState<string | null>(null)
@@ -85,20 +93,20 @@ export default function FeedPage() {
   // Fetch events when location changes
   const fetchEvents = useCallback(async () => {
     if (!location) return
-    
+
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const category = activeCategory === 'all' ? '' : `&category=${activeCategory}`
       const response = await fetch(
-        `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=1600${category}`
+        `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000${category}`
       )
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch events')
       }
-      
+
       const data = await response.json()
       setEvents(data.events || [])
     } catch (err) {
@@ -114,26 +122,53 @@ export default function FeedPage() {
 
   // Handle joining an event
   const handleJoin = async (eventId: string) => {
-    setJoiningEventId(eventId)
-    setShowJoinModal(true)
+    // If user is authenticated, join directly without modal
+    if (user) {
+      try {
+        const response = await fetch(`/api/events/${eventId}/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName: null }), // API will derive from user
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          setAttendeeId(data.attendee_id)
+          setDisplayName(user.email?.split('@')[0] || 'You')
+
+          // Set selected event for chat
+          const event = events.find((e) => e.id === eventId)
+          if (event) {
+            setSelectedEvent(event)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to join event:', err)
+      }
+    } else {
+      // Show modal for anonymous join
+      setJoiningEventId(eventId)
+      setShowJoinModal(true)
+    }
   }
 
   const confirmJoin = async (name: string) => {
     if (!joiningEventId) return
-    
+
     try {
       const response = await fetch(`/api/events/${joiningEventId}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName: name }),
       })
-      
+
       const data = await response.json()
-      
+
       if (response.ok) {
         setAttendeeId(data.attendee_id)
         setDisplayName(name)
-        
+
         // Set selected event for chat
         const event = events.find((e) => e.id === joiningEventId)
         if (event) {
@@ -159,23 +194,51 @@ export default function FeedPage() {
     }
   }
 
-  // Filter events by time
-  const nowEvents = events.filter((e) => {
+  // Apply filters to events
+  const applyFilters = (eventList: Event[]) => {
+    let filtered = eventList
+
+    // Right now filter: only show events that have already started and are still ongoing
+    if (rightNowFilter) {
+      filtered = filtered.filter((e) => {
+        const startsAt = new Date(e.starts_at)
+        const endsAt = e.ends_at ? new Date(e.ends_at) : null
+        const now = Date.now()
+        const hasStarted = startsAt.getTime() <= now
+        const hasNotEnded = !endsAt || endsAt.getTime() > now
+        return hasStarted && hasNotEnded
+      })
+    }
+
+    // Free only filter
+    if (freeOnlyFilter) {
+      filtered = filtered.filter((e) => e.price_label === 'Free')
+    }
+
+    return filtered
+  }
+
+  // Filter events by time (2-hour threshold for "nearby now" vs "later tonight")
+  const allNowEvents = events.filter((e) => {
     const startsAt = new Date(e.starts_at)
     const hoursUntil = (startsAt.getTime() - Date.now()) / (1000 * 60 * 60)
     return hoursUntil <= 2 // Starting within 2 hours or already started
   })
 
-  const laterEvents = events.filter((e) => {
+  const allLaterEvents = events.filter((e) => {
     const startsAt = new Date(e.starts_at)
     const hoursUntil = (startsAt.getTime() - Date.now()) / (1000 * 60 * 60)
     return hoursUntil > 2
   })
 
+  // Apply additional filters
+  const nowEvents = applyFilters(allNowEvents)
+  const laterEvents = rightNowFilter ? [] : applyFilters(allLaterEvents) // Hide later events when "Right now" is active
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      
+
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Topbar */}
         <div className="sticky top-0 z-10 bg-[rgba(10,10,11,0.85)] backdrop-blur-xl border-b border-border px-7 py-4 flex items-center gap-4">
@@ -198,11 +261,10 @@ export default function FeedPage() {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-1.5 bg-surface2 border border-border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${
-                activeCategory === cat.id
-                  ? 'bg-purple-dim border-purple text-purple'
-                  : 'text-muted hover:border-border2 hover:text-text'
-              }`}
+              className={`flex items-center gap-1.5 bg-surface2 border border-border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${activeCategory === cat.id
+                ? 'bg-purple-dim border-purple text-purple'
+                : 'text-muted hover:border-border2 hover:text-text'
+                }`}
             >
               {cat.id !== 'all' && (
                 <span className="w-2 h-2 rounded-full" style={{ background: cat.color }} />
@@ -210,10 +272,22 @@ export default function FeedPage() {
               {cat.label}
             </button>
           ))}
-          <button className="flex items-center gap-1.5 bg-surface2 border border-border rounded-full px-3.5 py-1.5 text-xs font-medium text-muted cursor-pointer whitespace-nowrap transition-all hover:border-border2 hover:text-text">
+          <button
+            onClick={() => setRightNowFilter(!rightNowFilter)}
+            className={`flex items-center gap-1.5 bg-surface2 border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${rightNowFilter
+              ? 'bg-purple-dim border-purple text-purple'
+              : 'border-border text-muted hover:border-border2 hover:text-text'
+              }`}
+          >
             🕐 Right now
           </button>
-          <button className="flex items-center gap-1.5 bg-surface2 border border-border rounded-full px-3.5 py-1.5 text-xs font-medium text-muted cursor-pointer whitespace-nowrap transition-all hover:border-border2 hover:text-text">
+          <button
+            onClick={() => setFreeOnlyFilter(!freeOnlyFilter)}
+            className={`flex items-center gap-1.5 bg-surface2 border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${freeOnlyFilter
+              ? 'bg-purple-dim border-purple text-purple'
+              : 'border-border text-muted hover:border-border2 hover:text-text'
+              }`}
+          >
             Free only
           </button>
         </div>
@@ -332,7 +406,7 @@ export default function FeedPage() {
 function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClose: () => void }) {
   const [firstName, setFirstName] = useState('')
   const [lastInitial, setLastInitial] = useState('')
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (firstName && lastInitial) {
@@ -345,7 +419,7 @@ function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClos
       <div className="bg-surface border border-border rounded-[--radius] p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
         <h2 className="font-display font-bold text-xl mb-2">Join this event</h2>
         <p className="text-sm text-muted mb-4">{`Enter your name to join the chat. You'll appear as "First L."`}</p>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="flex gap-3 mb-4">
             <input
@@ -366,7 +440,7 @@ function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClos
               required
             />
           </div>
-          
+
           <div className="flex gap-3">
             <button
               type="button"

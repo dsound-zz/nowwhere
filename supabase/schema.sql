@@ -90,7 +90,7 @@ create or replace function expire_events() returns void as $$
   and status = 'live';
 $$ language sql;
 
--- Function to get events with distance
+-- Function to get events with distance and coordinates
 create or replace function get_nearby_events(
   lat float,
   lng float,
@@ -112,11 +112,13 @@ returns table (
   address text,
   status text,
   distance_m float,
-  attendee_count bigint
+  attendee_count bigint,
+  location_lat float,
+  location_lng float
 ) as $$
 begin
   return query
-  select 
+  select
     e.id,
     e.venue_id,
     e.title,
@@ -130,9 +132,11 @@ begin
     e.address,
     e.status,
     ST_Distance(e.location, ST_MakePoint(lng, lat)::geography) as distance_m,
-    (select count(*) from attendees a where a.event_id = e.id) as attendee_count
+    (select count(*) from attendees a where a.event_id = e.id) as attendee_count,
+    ST_Y(e.location::geometry) as location_lat,
+    ST_X(e.location::geometry) as location_lng
   from events e
-  where 
+  where
     e.status = 'live'
     and ST_DWithin(e.location, ST_MakePoint(lng, lat)::geography, radius_m)
     and (filter_category is null or e.category = filter_category)

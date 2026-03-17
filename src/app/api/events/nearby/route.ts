@@ -17,6 +17,8 @@ export interface NearbyEvent {
   distance_m: number
   attendee_count: number
   venue_name?: string
+  location_lat: number | null
+  location_lng: number | null
 }
 
 export async function GET(request: NextRequest) {

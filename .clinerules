@@ -1,1 +1,1 @@
-Always refer to CONTEXT.md for project goals and current progress. Update it whenever a task is completed.
+Monitor context usage. If the conversation history feels redundant or the context window is near 80%, proactively suggest updating CONTEXT.md and starting a new task to save on token costs.

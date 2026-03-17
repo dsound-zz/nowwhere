@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/components/providers/SupabaseProvider'
+import { AuthModal } from '@/components/auth/AuthModal'
 
 const navItems = [
    { href: '/', icon: 'home', label: 'Feed' },
@@ -45,41 +48,59 @@ const icons: Record<string, React.ReactNode> = {
    ),
 }
 
+function getInitials(email: string): string {
+   const parts = email.split('@')[0].split(/[._-]/)
+   if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase()
+   }
+   return email.substring(0, 2).toUpperCase()
+}
+
 export function Sidebar() {
    const pathname = usePathname()
+   const { user } = useAuth()
+   const [showAuthModal, setShowAuthModal] = useState(false)
 
    return (
-      <aside className="w-[68px] bg-surface border-r border-border flex flex-col items-center py-5 gap-1.5 shrink-0">
-         <div className="font-display font-extrabold text-lg text-purple tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
-            NW
-         </div>
+      <>
+         <aside className="w-[68px] bg-surface border-r border-border flex flex-col items-center py-5 gap-1.5 shrink-0">
+            <div className="font-display font-extrabold text-lg text-purple tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
+               NW
+            </div>
 
-         {navItems.map((item) => (
-            <Link
-               key={item.href}
-               href={item.href}
-               className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-150 ${pathname === item.href
+            {navItems.map((item) => (
+               <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-150 ${pathname === item.href
                      ? 'bg-purple-dim text-purple'
                      : 'text-muted hover:bg-surface2 hover:text-text'
-                  }`}
-               title={item.label}
-            >
-               {icons[item.icon]}
-            </Link>
-         ))}
+                     }`}
+                  title={item.label}
+               >
+                  {icons[item.icon]}
+               </Link>
+            ))}
 
-         <div className="mt-auto flex flex-col items-center gap-1.5">
-            <Link
-               href="/settings"
-               className="w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer text-muted hover:bg-surface2 hover:text-text transition-all duration-150"
-               title="Settings"
-            >
-               {icons.settings}
-            </Link>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer mt-2">
-               ?
+            <div className="mt-auto flex flex-col items-center gap-1.5">
+               <Link
+                  href="/settings"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer text-muted hover:bg-surface2 hover:text-text transition-all duration-150"
+                  title="Settings"
+               >
+                  {icons.settings}
+               </Link>
+               <button
+                  onClick={() => !user && setShowAuthModal(true)}
+                  className="w-9 h-9 rounded-full bg-gradient-to-br from-purple to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer mt-2 transition-transform hover:scale-105"
+                  title={user ? user.email || 'Account' : 'Sign in'}
+               >
+                  {user ? getInitials(user.email || '?') : '?'}
+               </button>
             </div>
-         </div>
-      </aside>
+         </aside>
+
+         {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      </>
    )
 }

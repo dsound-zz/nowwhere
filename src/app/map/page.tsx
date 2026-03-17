@@ -17,6 +17,8 @@ interface Event {
    location: string | null
    starts_at: string
    address: string | null
+   location_lat: number | null
+   location_lng: number | null
 }
 
 interface UserLocation {
@@ -74,7 +76,7 @@ export default function MapPage() {
       const fetchEvents = async () => {
          try {
             const response = await fetch(
-               `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=3200`
+               `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000`
             )
             const data = await response.json()
             setEvents(data.events || [])
@@ -118,9 +120,11 @@ export default function MapPage() {
       markersRef.current = []
 
       events.forEach((event) => {
-         // Parse location from PostGIS format (if stored as string)
-         // For now, we'll skip events without valid location
-         if (!event.location) return
+         // Skip events without valid coordinates
+         if (!event.location_lng || !event.location_lat) {
+            console.warn('Event missing coordinates:', event.id, event.title)
+            return
+         }
 
          // Create custom marker element
          const el = document.createElement('div')
@@ -138,6 +142,7 @@ export default function MapPage() {
         border: 2px solid white;
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         transition: transform 0.15s;
+        user-select: none;
       `
          el.innerHTML = event.emoji
          el.addEventListener('click', () => setSelectedEvent(event))
@@ -148,13 +153,12 @@ export default function MapPage() {
             el.style.transform = 'scale(1)'
          })
 
-         // For demo, use random offset from user location
-         // In production, parse actual coordinates from event.location
-         const offsetLng = (Math.random() - 0.5) * 0.01
-         const offsetLat = (Math.random() - 0.5) * 0.01
-
-         const marker = new mapboxgl.Marker(el)
-            .setLngLat([location.lng + offsetLng, location.lat + offsetLat])
+         // Use real coordinates from the database with proper anchor
+         const marker = new mapboxgl.Marker({
+            element: el,
+            anchor: 'center'
+         })
+            .setLngLat([event.location_lng, event.location_lat])
             .addTo(mapRef.current!)
 
          markersRef.current.push(marker)
