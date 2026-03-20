@@ -2,6 +2,35 @@
 
 ## Recent Changes
 
+### March 20, 2026 - Design System Refresh: Soft Teal + OpenMoji
+
+**What Changed:** Complete visual refresh replacing purple accent with soft teal and native emojis with OpenMoji SVGs.
+
+**Color Updates:**
+
+- Primary accent: `#7b6ef6` (purple) → `#5BB5A2` (soft teal)
+- Music category: Now uses distinct indigo `#7C6EF6` (previously shared purple with primary)
+- All other accent colors unchanged (green, amber, coral, blue)
+- Updated all components, buttons, links, active states, hover states
+
+**Emoji Integration:**
+
+- Replaced all native Unicode emojis with OpenMoji SVGs
+- New [`src/lib/emoji.ts`](src/lib/emoji.ts) utility converts emoji characters to CDN URLs
+- New [`src/components/ui/Emoji.tsx`](src/components/ui/Emoji.tsx) component with native fallback
+- Map markers now use OpenMoji images via img tags
+- No database changes - emojis still stored as native characters
+
+**Files Modified:**
+
+- Design tokens: [`globals.css`](src/app/globals.css), [`tailwind.config.ts`](tailwind.config.ts)
+- All components referencing purple or rendering emojis (15 files total)
+- Complete list in [`plans/style-token-refresh.md`](../plans/style-token-refresh.md)
+
+**Visual Impact:** Mood shifted from "nightclub VIP" to "neighborhood cafe" - warmer, more approachable, distinctively quirky with hand-drawn emoji aesthetic.
+
+## Recent Changes (Continued)
+
 ### March 17, 2026 - Map Marker Rendering & Positioning Fix
 
 **Problem Solved:** Map markers were floating around, disappearing on zoom/hover, and rushing off screen when the mouse pointer approached them.
@@ -124,13 +153,30 @@ src/
 ### Styling
 
 - Use Tailwind CSS utility classes
-- Custom colors are defined in `tailwind.config.ts`:
-  - `bg`, `surface`, `surface2` - Background colors
+- Custom colors are defined in [`tailwind.config.ts`](tailwind.config.ts):
+  - `bg`, `surface`, `surface2` - Background colors (dark theme)
   - `border`, `border2` - Border colors
   - `text`, `muted`, `faint` - Text colors
-  - `purple`, `green`, `amber`, `coral`, `blue` - Accent colors
-- Use the design system colors instead of hardcoded values
+  - **Primary accent**: `teal` (`#5BB5A2`) - buttons, links, active states, brand elements
+  - **Category colors**:
+    - `indigo` (`#7C6EF6`) - Music category only
+    - `green` (`#3ecf8e`) - Food category, success states
+    - `amber` (`#f5a623`) - Art category, warnings
+    - `coral` (`#f06449`) - Social category, errors
+    - `blue` (`#4f9cf9`) - Sport category, secondary accents
+- Use design system color tokens instead of hardcoded values
 - Border radius defaults: `DEFAULT: 16px`, `sm: 10px`
+
+### Emoji Rendering
+
+- **Use OpenMoji component for all emoji displays**
+- Import: `import { Emoji } from '@/components/ui/Emoji'`
+- Usage: `<Emoji emoji="🎷" size={24} />`
+- Renders OpenMoji SVGs from CDN with native emoji fallback
+- Utility functions in [`src/lib/emoji.ts`](src/lib/emoji.ts):
+  - `emojiToCodepoint(emoji)` - converts emoji to hex codepoint
+  - `getOpenMojiUrl(emoji)` - returns OpenMoji CDN URL
+- Database still stores native emoji characters (no schema changes needed)
 
 ### API Routes
 

@@ -9,6 +9,7 @@ import { VenuePanel } from '@/components/events/VenuePanel'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { createClient } from '@/lib/supabase/client'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface Event {
    id: string
@@ -76,13 +77,13 @@ export default function MyEventsPage() {
          if (!error && attendees) {
             // Transform the data
             const eventList = attendees
-              .filter((a) => a.events)
-              .map((a) => ({
-                ...(a.events as any),
-                joined_at: a.joined_at,
-                attendee_count: 0,
-                distance_m: 0, // Distance not relevant for My Events page
-              }))
+               .filter((a) => a.events)
+               .map((a) => ({
+                  ...(a.events as any),
+                  joined_at: a.joined_at,
+                  attendee_count: 0,
+                  distance_m: 0, // Distance not relevant for My Events page
+               }))
 
             setEvents(eventList)
          }
@@ -165,14 +166,16 @@ export default function MyEventsPage() {
                // Not authenticated
                <div className="flex items-center justify-center h-[calc(100vh-200px)]">
                   <div className="max-w-md text-center px-6">
-                     <div className="text-5xl mb-4">🎟️</div>
+                     <div className="mb-4">
+                        <Emoji emoji="🎟️" size={40} />
+                     </div>
                      <h2 className="font-display font-bold text-2xl mb-3">Sign in to see your events</h2>
                      <p className="text-muted mb-6">
                         Create an account to join events and see them all in one place.
                      </p>
                      <button
                         onClick={() => setShowAuthModal(true)}
-                        className="px-6 py-2.5 rounded-full bg-purple text-white font-semibold transition-opacity hover:opacity-90"
+                        className="px-6 py-2.5 rounded-full bg-teal text-white font-semibold transition-opacity hover:opacity-90"
                      >
                         Sign in
                      </button>
@@ -186,14 +189,16 @@ export default function MyEventsPage() {
                // Empty state
                <div className="flex items-center justify-center h-[calc(100vh-200px)]">
                   <div className="max-w-md text-center px-6">
-                     <div className="text-5xl mb-4">📍</div>
+                     <div className="mb-4">
+                        <Emoji emoji="📍" size={40} />
+                     </div>
                      <h2 className="font-display font-bold text-2xl mb-3">No events yet</h2>
                      <p className="text-muted mb-6">
                         Join an event from the feed to see it here.
                      </p>
                      <a
                         href="/"
-                        className="inline-block px-6 py-2.5 rounded-full bg-purple text-white font-semibold transition-opacity hover:opacity-90"
+                        className="inline-block px-6 py-2.5 rounded-full bg-teal text-white font-semibold transition-opacity hover:opacity-90"
                      >
                         Browse events
                      </a>
@@ -210,10 +215,10 @@ export default function MyEventsPage() {
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3">
                            {activeEvents.map((event) => (
                               <div key={event.id} className="relative">
-                                <EventCard
-                                  event={{...event, distance_m: event.distance_m || 0}}
-                                  onClick={handleEventClick}
-                                />
+                                 <EventCard
+                                    event={{ ...event, distance_m: event.distance_m || 0 }}
+                                    onClick={handleEventClick}
+                                 />
                                  <button
                                     onClick={(e) => {
                                        e.stopPropagation()
@@ -240,7 +245,7 @@ export default function MyEventsPage() {
                            {pastEvents.map((event) => (
                               <EventCard
                                  key={event.id}
-                                 event={{...event, distance_m: event.distance_m || 0}}
+                                 event={{ ...event, distance_m: event.distance_m || 0 }}
                                  onClick={() => { }}
                               />
                            ))}

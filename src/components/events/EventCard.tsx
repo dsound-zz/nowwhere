@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface EventCardProps {
    event: {
@@ -24,7 +25,7 @@ interface EventCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-   music: 'bg-purple-dim text-purple',
+   music: 'bg-indigo-dim text-indigo',
    food: 'bg-green-dim text-green',
    art: 'bg-amber-dim text-amber',
    sport: 'bg-[rgba(79,156,249,.12)] text-blue',
@@ -32,7 +33,7 @@ const categoryColors: Record<string, string> = {
 }
 
 const avatarGradients = [
-   'from-purple to-blue',
+   'from-teal to-blue',
    'from-green to-blue',
    'from-amber to-coral',
 ]
@@ -76,13 +77,15 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
    if (isHero) {
       return (
          <div
-            className="mx-7 mb-6 rounded-[--radius] bg-surface border border-border overflow-hidden cursor-pointer transition-all duration-200 hover:border-purple hover:-translate-y-0.5"
+            className="mx-7 mb-6 rounded-[--radius] bg-surface border border-border overflow-hidden cursor-pointer transition-all duration-200 hover:border-teal hover:-translate-y-0.5"
             onClick={() => onClick?.(event.id)}
          >
-            <div className="h-35 bg-gradient-to-br from-[#1a1440] via-[#2d1f6e] to-[#1e2a5e] flex items-center justify-center relative overflow-hidden">
-               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(123,110,246,0.3)_0%,transparent_60%),radial-gradient(ellipse_at_70%_50%,rgba(79,156,249,0.2)_0%,transparent_60%)]" />
-               <div className="text-[52px] relative z-10">{event.emoji}</div>
-               <div className="absolute top-3 left-3 bg-purple text-white text-[10px] font-semibold px-2.5 py-1 rounded-full font-display tracking-wider uppercase">
+            <div className="h-35 bg-gradient-to-br from-[#0f2b26] via-[#1a3d38] to-[#162e3e] flex items-center justify-center relative overflow-hidden">
+               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(91,181,162,0.3)_0%,transparent_60%),radial-gradient(ellipse_at_70%_50%,rgba(79,156,249,0.2)_0%,transparent_60%)]" />
+               <div className="relative z-10">
+                  <Emoji emoji={event.emoji} size={52} />
+               </div>
+               <div className="absolute top-3 left-3 bg-teal text-white text-[10px] font-semibold px-2.5 py-1 rounded-full font-display tracking-wider uppercase">
                   {`Tonight's pick`}
                </div>
             </div>
@@ -91,9 +94,9 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
                   {event.title}
                </h3>
                <div className="text-xs text-muted flex gap-3.5 mb-3">
-                  <span>📍 {formatDistance(event.distance_m)}</span>
-                  <span>🕗 {formatTime(event.starts_at)}</span>
-                  <span>🎟 {event.price_label}</span>
+                  <span className="flex items-center gap-1"><Emoji emoji="📍" size={12} /> {formatDistance(event.distance_m)}</span>
+                  <span className="flex items-center gap-1"><Emoji emoji="🕗" size={12} /> {formatTime(event.starts_at)}</span>
+                  <span className="flex items-center gap-1"><Emoji emoji="🎟" size={12} /> {event.price_label}</span>
                </div>
                <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -114,7 +117,7 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
                   <button
                      onClick={handleJoin}
                      disabled={isJoining}
-                     className="bg-purple text-white border-none rounded-full px-4.5 py-2 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:opacity-88 hover:scale-[1.03] disabled:opacity-50"
+                     className="bg-teal text-white border-none rounded-full px-4.5 py-2 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:opacity-88 hover:scale-[1.03] disabled:opacity-50"
                   >
                      {isJoining ? 'Joining...' : "I'm going →"}
                   </button>
@@ -129,7 +132,9 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
          className="bg-surface border border-border rounded-[--radius] p-4 cursor-pointer transition-all duration-200 hover:border-border2 hover:-translate-y-0.5 relative overflow-hidden group"
          onClick={() => onClick?.(event.id)}
       >
-         <div className="text-[22px] mb-2.5">{event.emoji}</div>
+         <div className="mb-2.5">
+            <Emoji emoji={event.emoji} size={22} />
+         </div>
          <h3 className="font-display text-[15px] font-semibold tracking-[-0.2px] mb-1 leading-tight">
             {event.title}
          </h3>
@@ -161,7 +166,7 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
                </span>
             </div>
             {event.attendee_count > 0 ? (
-               <div className="text-[11px] text-purple bg-purple-glow px-2 py-1 rounded-full flex items-center gap-1">
+               <div className="text-[11px] text-teal bg-teal-glow px-2 py-1 rounded-full flex items-center gap-1">
                   <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>

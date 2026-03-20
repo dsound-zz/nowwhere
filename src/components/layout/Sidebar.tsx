@@ -64,7 +64,7 @@ export function Sidebar() {
    return (
       <>
          <aside className="w-[68px] bg-surface border-r border-border flex flex-col items-center py-5 gap-1.5 shrink-0">
-            <div className="font-display font-extrabold text-lg text-purple tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
+            <div className="font-display font-extrabold text-lg text-teal tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
                NW
             </div>
 
@@ -73,7 +73,7 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-150 ${pathname === item.href
-                     ? 'bg-purple-dim text-purple'
+                     ? 'bg-teal-dim text-teal'
                      : 'text-muted hover:bg-surface2 hover:text-text'
                      }`}
                   title={item.label}
@@ -92,7 +92,7 @@ export function Sidebar() {
                </Link>
                <button
                   onClick={() => !user && setShowAuthModal(true)}
-                  className="w-9 h-9 rounded-full bg-gradient-to-br from-purple to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer mt-2 transition-transform hover:scale-105"
+                  className="w-9 h-9 rounded-full bg-gradient-to-br from-teal to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer mt-2 transition-transform hover:scale-105"
                   title={user ? user.email || 'Account' : 'Sign in'}
                >
                   {user ? getInitials(user.email || '?') : '?'}

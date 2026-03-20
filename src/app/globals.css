@@ -14,9 +14,11 @@
   --text: #f0efe8;
   --muted: #888784;
   --faint: #3a3a3e;
-  --purple: #7b6ef6;
-  --purple-dim: rgba(123,110,246,0.15);
-  --purple-glow: rgba(123,110,246,0.08);
+  --teal: #5BB5A2;
+  --teal-dim: rgba(91,181,162,0.15);
+  --teal-glow: rgba(91,181,162,0.08);
+  --indigo: #7C6EF6;
+  --indigo-dim: rgba(124,110,246,0.15);
   --green: #3ecf8e;
   --green-dim: rgba(62,207,142,0.12);
   --amber: #f5a623;

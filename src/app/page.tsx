@@ -7,6 +7,7 @@ import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
 import { useAuth } from '@/components/providers/SupabaseProvider'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface Event {
   id: string
@@ -36,7 +37,7 @@ interface UserLocation {
 
 const categories = [
   { id: 'all', label: 'All' },
-  { id: 'music', label: 'Music', color: '#7b6ef6' },
+  { id: 'music', label: 'Music', color: '#7C6EF6' },
   { id: 'food', label: 'Food & drink', color: '#3ecf8e' },
   { id: 'art', label: 'Art', color: '#f5a623' },
   { id: 'sport', label: 'Sport', color: '#4f9cf9' },
@@ -243,9 +244,9 @@ export default function FeedPage() {
         {/* Topbar */}
         <div className="sticky top-0 z-10 bg-[rgba(10,10,11,0.85)] backdrop-blur-xl border-b border-border px-7 py-4 flex items-center gap-4">
           <h1 className="font-display font-bold text-xl tracking-[-0.5px] flex-1">
-            Now<span className="text-purple">Here</span>
+            Now<span className="text-teal">Here</span>
           </h1>
-          <button className="flex items-center gap-1.5 bg-surface2 border border-border2 rounded-full px-3 py-1.5 text-xs text-muted cursor-pointer transition-colors hover:border-purple hover:text-text">
+          <button className="flex items-center gap-1.5 bg-surface2 border border-border2 rounded-full px-3 py-1.5 text-xs text-muted cursor-pointer transition-colors hover:border-teal hover:text-text">
             <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-green fill-none strokeWidth-2">
               <circle cx="12" cy="10" r="3" />
               <path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z" />
@@ -262,7 +263,7 @@ export default function FeedPage() {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={`flex items-center gap-1.5 bg-surface2 border border-border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${activeCategory === cat.id
-                ? 'bg-purple-dim border-purple text-purple'
+                ? 'bg-teal-dim border-teal text-teal'
                 : 'text-muted hover:border-border2 hover:text-text'
                 }`}
             >
@@ -275,16 +276,16 @@ export default function FeedPage() {
           <button
             onClick={() => setRightNowFilter(!rightNowFilter)}
             className={`flex items-center gap-1.5 bg-surface2 border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${rightNowFilter
-              ? 'bg-purple-dim border-purple text-purple'
+              ? 'bg-teal-dim border-teal text-teal'
               : 'border-border text-muted hover:border-border2 hover:text-text'
               }`}
           >
-            🕐 Right now
+            <Emoji emoji="🕐" size={12} /> Right now
           </button>
           <button
             onClick={() => setFreeOnlyFilter(!freeOnlyFilter)}
             className={`flex items-center gap-1.5 bg-surface2 border rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer whitespace-nowrap transition-all ${freeOnlyFilter
-              ? 'bg-purple-dim border-purple text-purple'
+              ? 'bg-teal-dim border-teal text-teal'
               : 'border-border text-muted hover:border-border2 hover:text-text'
               }`}
           >
@@ -320,7 +321,7 @@ export default function FeedPage() {
                   <h2 className="font-display font-bold text-[15px] tracking-[-0.2px]">
                     Nearby now
                   </h2>
-                  <a href="#" className="text-xs text-purple no-underline">See all</a>
+                  <a href="#" className="text-xs text-teal no-underline">See all</a>
                 </div>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3">
                   {nowEvents.slice(1).map((event) => (
@@ -342,7 +343,7 @@ export default function FeedPage() {
                   <h2 className="font-display font-bold text-[15px] tracking-[-0.2px]">
                     Later tonight
                   </h2>
-                  <a href="#" className="text-xs text-purple no-underline">See all</a>
+                  <a href="#" className="text-xs text-teal no-underline">See all</a>
                 </div>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3">
                   {laterEvents.map((event) => (
@@ -360,7 +361,9 @@ export default function FeedPage() {
             {/* Empty state */}
             {events.length === 0 && (
               <div className="flex flex-col items-center justify-center h-64 text-muted">
-                <div className="text-4xl mb-4">📍</div>
+                <div className="mb-4">
+                  <Emoji emoji="📍" size={32} />
+                </div>
                 <p className="text-lg font-semibold mb-2">No events nearby</p>
                 <p className="text-sm">Check back later or expand your search radius</p>
               </div>
@@ -427,7 +430,7 @@ function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClos
               placeholder="First name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="flex-1 bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-purple"
+              className="flex-1 bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-teal"
               required
             />
             <input
@@ -435,7 +438,7 @@ function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClos
               placeholder="L"
               value={lastInitial}
               onChange={(e) => setLastInitial(e.target.value.slice(0, 1))}
-              className="w-16 bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-purple text-center"
+              className="w-16 bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-teal text-center"
               maxLength={1}
               required
             />
@@ -451,7 +454,7 @@ function JoinModal({ onJoin, onClose }: { onJoin: (name: string) => void; onClos
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-full bg-purple text-white font-semibold"
+              className="flex-1 py-2.5 rounded-full bg-teal text-white font-semibold"
             >
               Join
             </button>

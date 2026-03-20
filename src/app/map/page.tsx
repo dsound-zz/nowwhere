@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
+import { getOpenMojiUrl } from '@/lib/emoji'
 
 interface Event {
    id: string
@@ -32,7 +33,7 @@ const defaultLocation: UserLocation = {
 }
 
 const categoryColors: Record<string, string> = {
-   music: '#7b6ef6',
+   music: '#7C6EF6',
    food: '#3ecf8e',
    art: '#f5a623',
    sport: '#4f9cf9',
@@ -133,18 +134,22 @@ export default function MapPage() {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: ${categoryColors[event.category || 'social'] || '#7b6ef6'};
+        background: ${categoryColors[event.category || 'social'] || '#5BB5A2'};
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
         cursor: pointer;
         border: 2px solid white;
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         user-select: none;
         will-change: transform;
       `
-         el.innerHTML = event.emoji
+         // Use OpenMoji image
+         const emojiImg = document.createElement('img')
+         emojiImg.src = getOpenMojiUrl(event.emoji)
+         emojiImg.alt = event.emoji
+         emojiImg.style.cssText = 'width: 20px; height: 20px; pointer-events: none;'
+         el.appendChild(emojiImg)
 
          // Simple click handler - no hover effects for now
          el.addEventListener('click', (e) => {
@@ -197,7 +202,7 @@ export default function MapPage() {
             {/* Topbar overlay */}
             <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-bg to-transparent p-4 pointer-events-none">
                <div className="bg-surface/90 backdrop-blur-lg border border-border rounded-full px-4 py-2 flex items-center gap-3 max-w-md pointer-events-auto">
-                  <h1 className="font-display font-bold text-lg text-purple">Map View</h1>
+                  <h1 className="font-display font-bold text-lg text-teal">Map View</h1>
                   <span className="text-xs text-muted">{events.length} events nearby</span>
                </div>
             </div>
@@ -216,7 +221,7 @@ export default function MapPage() {
                         </div>
                         <button
                            onClick={() => handleJoin(selectedEvent.id)}
-                           className="bg-purple text-white rounded-full px-4 py-2 text-sm font-semibold"
+                           className="bg-teal text-white rounded-full px-4 py-2 text-sm font-semibold"
                         >
                            Join
                         </button>

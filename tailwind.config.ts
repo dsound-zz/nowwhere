@@ -17,10 +17,14 @@ const config: Config = {
         text: '#f0efe8',
         muted: '#888784',
         faint: '#3a3a3e',
-        purple: {
-          DEFAULT: '#7b6ef6',
-          dim: 'rgba(123,110,246,0.15)',
-          glow: 'rgba(123,110,246,0.08)',
+        teal: {
+          DEFAULT: '#5BB5A2',
+          dim: 'rgba(91,181,162,0.15)',
+          glow: 'rgba(91,181,162,0.08)',
+        },
+        indigo: {
+          DEFAULT: '#7C6EF6',
+          dim: 'rgba(124,110,246,0.15)',
         },
         green: {
           DEFAULT: '#3ecf8e',

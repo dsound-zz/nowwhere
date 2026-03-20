@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/components/providers/SupabaseProvider'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface AuthModalProps {
    onClose: () => void
@@ -43,7 +44,9 @@ export function AuthModal({ onClose }: AuthModalProps) {
                // Check your email state
                <>
                   <div className="text-center mb-4">
-                     <div className="text-4xl mb-3">📧</div>
+                     <div className="mb-3">
+                        <Emoji emoji="📧" size={32} />
+                     </div>
                      <h2 className="font-display font-bold text-xl mb-2">Check your email</h2>
                      <p className="text-sm text-muted">
                         We sent a magic link to <span className="text-text font-medium">{email}</span>
@@ -54,7 +57,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
                   </p>
                   <button
                      onClick={onClose}
-                     className="w-full py-2.5 rounded-full bg-purple text-white font-semibold transition-opacity hover:opacity-90"
+                     className="w-full py-2.5 rounded-full bg-teal text-white font-semibold transition-opacity hover:opacity-90"
                   >
                      Got it
                   </button>
@@ -73,7 +76,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
                         placeholder="your@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-surface2 border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:border-purple transition-colors mb-4"
+                        className="w-full bg-surface2 border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:border-teal transition-colors mb-4"
                         disabled={status === 'sending'}
                         required
                         autoFocus
@@ -96,7 +99,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
                         </button>
                         <button
                            type="submit"
-                           className="flex-1 py-2.5 rounded-full bg-purple text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+                           className="flex-1 py-2.5 rounded-full bg-teal text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
                            disabled={status === 'sending'}
                         >
                            {status === 'sending' ? 'Sending...' : 'Send magic link'}

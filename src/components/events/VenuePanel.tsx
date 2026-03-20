@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface EmailQueueItem {
    id: string
@@ -135,8 +136,8 @@ export function VenuePanel() {
                className="bg-surface2 rounded-[--radius-sm] p-3 mb-2.5 cursor-pointer border border-transparent transition-colors hover:border-border2"
             >
                <div className="flex items-center gap-2.5 mb-1.5">
-                  <div className="w-[34px] h-[34px] rounded-[10px] bg-purple-dim flex items-center justify-center text-base shrink-0">
-                     {categoryEmojis[venue.category || 'music'] || '📍'}
+                  <div className="w-[34px] h-[34px] rounded-[10px] bg-teal-dim flex items-center justify-center text-base shrink-0">
+                     <Emoji emoji={categoryEmojis[venue.category || 'music'] || '📍'} size={18} />
                   </div>
                   <div>
                      <div className="text-[13px] font-semibold">{venue.name}</div>

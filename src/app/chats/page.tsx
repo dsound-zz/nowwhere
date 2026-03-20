@@ -6,6 +6,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { createClient } from '@/lib/supabase/client'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface ChatPreview {
    event_id: string
@@ -159,14 +160,16 @@ export default function ChatsPage() {
                   {!user ? (
                      <div className="flex items-center justify-center h-full px-6">
                         <div className="text-center">
-                           <div className="text-4xl mb-3">💬</div>
+                           <div className="mb-3">
+                              <Emoji emoji="💬" size={32} />
+                           </div>
                            <h2 className="font-display font-bold text-lg mb-2">Sign in to see your chats</h2>
                            <p className="text-sm text-muted mb-4">
                               Join events to start chatting with other attendees.
                            </p>
                            <button
                               onClick={() => setShowAuthModal(true)}
-                              className="px-4 py-2 rounded-full bg-purple text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                              className="px-4 py-2 rounded-full bg-teal text-white text-sm font-semibold transition-opacity hover:opacity-90"
                            >
                               Sign in
                            </button>
@@ -179,14 +182,16 @@ export default function ChatsPage() {
                   ) : chats.length === 0 ? (
                      <div className="flex items-center justify-center h-full px-6">
                         <div className="text-center">
-                           <div className="text-4xl mb-3">📭</div>
+                           <div className="mb-3">
+                              <Emoji emoji="📭" size={32} />
+                           </div>
                            <h2 className="font-display font-bold text-lg mb-2">No chats yet</h2>
                            <p className="text-sm text-muted mb-4">
                               Join an event to start chatting.
                            </p>
                            <a
                               href="/"
-                              className="inline-block px-4 py-2 rounded-full bg-purple text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                              className="inline-block px-4 py-2 rounded-full bg-teal text-white text-sm font-semibold transition-opacity hover:opacity-90"
                            >
                               Browse events
                            </a>
@@ -202,7 +207,9 @@ export default function ChatsPage() {
                                  }`}
                            >
                               <div className="flex items-start gap-3">
-                                 <div className="text-2xl flex-shrink-0">{chat.event_emoji}</div>
+                                 <div className="flex-shrink-0">
+                                    <Emoji emoji={chat.event_emoji} size={24} />
+                                 </div>
                                  <div className="flex-1 min-w-0">
                                     <div className="flex items-baseline justify-between mb-1">
                                        <h3 className="font-semibold text-sm truncate">{chat.event_title}</h3>

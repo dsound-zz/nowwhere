@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import { Emoji } from '@/components/ui/Emoji'
 
 interface Message {
    id: string
@@ -22,7 +23,7 @@ interface ChatPanelProps {
 }
 
 const avatarGradients = [
-   'from-purple to-blue',
+   'from-teal to-blue',
    'from-green to-blue',
    'from-amber to-coral',
    'from-coral-dim to-coral',
@@ -124,7 +125,7 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
    return (
       <>
          <div className="bg-surface2 rounded-[--radius-sm] p-2.5 mb-3.5 flex items-center gap-2.5">
-            <div className="text-xl">{eventEmoji}</div>
+            <Emoji emoji={eventEmoji} size={20} />
             <div>
                <div className="text-[13px] font-semibold">{eventName}</div>
                <div className="text-[11px] text-muted">Tonight 8pm · {messages.length} messages</div>
@@ -135,7 +136,9 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
             {isLoading ? (
                <div className="text-center text-muted text-sm py-8">Loading messages...</div>
             ) : messages.length === 0 ? (
-               <div className="text-center text-muted text-sm py-8">No messages yet. Say hi! 👋</div>
+               <div className="text-center text-muted text-sm py-8 flex items-center justify-center gap-2">
+                  No messages yet. Say hi! <Emoji emoji="👋" size={16} />
+               </div>
             ) : (
                messages.map((msg) => {
                   const isMe = msg.attendee_id === attendeeId
@@ -155,8 +158,8 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
                            </div>
                            <div
                               className={`max-w-[190px] px-3 py-2 text-[12px] leading-relaxed rounded-[14px] ${isMe
-                                    ? 'bg-purple text-white rounded-br-[4px]'
-                                    : 'bg-surface2 text-text rounded-bl-[4px]'
+                                 ? 'bg-teal text-white rounded-br-[4px]'
+                                 : 'bg-surface2 text-text rounded-bl-[4px]'
                                  }`}
                            >
                               {msg.body}
@@ -172,7 +175,7 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
          <div className="p-3 border-t border-border flex gap-2 items-center">
             <input
                type="text"
-               className="flex-1 bg-surface2 border border-border rounded-full px-3.5 py-2 font-body text-[13px] text-text outline-none transition-colors focus:border-purple placeholder:text-muted"
+               className="flex-1 bg-surface2 border border-border rounded-full px-3.5 py-2 font-body text-[13px] text-text outline-none transition-colors focus:border-teal placeholder:text-muted"
                placeholder="Message the group..."
                value={newMessage}
                onChange={(e) => setNewMessage(e.target.value)}
@@ -181,7 +184,7 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
             <button
                onClick={sendMessage}
                disabled={!newMessage.trim()}
-               className="w-[34px] h-[34px] rounded-full bg-purple border-none cursor-pointer flex items-center justify-center transition-opacity hover:opacity-85 disabled:opacity-50 shrink-0"
+               className="w-[34px] h-[34px] rounded-full bg-teal border-none cursor-pointer flex items-center justify-center transition-opacity hover:opacity-85 disabled:opacity-50 shrink-0"
             >
                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none strokeWidth-[2.5] strokeLinecap-round strokeLinejoin-round">
                   <line x1="22" y1="2" x2="11" y2="13" />

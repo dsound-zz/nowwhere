@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { AuthModal } from '@/components/auth/AuthModal'
+import { Emoji } from '@/components/ui/Emoji'
 
 const RADIUS_OPTIONS = [
    { value: 800, label: '0.5 miles (800m)' },
@@ -66,14 +67,16 @@ export default function SettingsPage() {
                   {!user ? (
                      // Not authenticated - show sign-in prompt
                      <div className="bg-surface border border-border rounded-[--radius] p-8 text-center">
-                        <div className="text-4xl mb-4">🔒</div>
+                        <div className="mb-4">
+                           <Emoji emoji="🔒" size={32} />
+                        </div>
                         <h2 className="font-display font-bold text-xl mb-3">Sign in to access settings</h2>
                         <p className="text-muted mb-6">
                            Create an account to save your preferences and manage your events.
                         </p>
                         <button
                            onClick={() => setShowAuthModal(true)}
-                           className="w-full py-2.5 rounded-full bg-purple text-white font-semibold transition-opacity hover:opacity-90"
+                           className="w-full py-2.5 rounded-full bg-teal text-white font-semibold transition-opacity hover:opacity-90"
                         >
                            Sign in with email
                         </button>
@@ -130,8 +133,8 @@ export default function SettingsPage() {
                                           key={option.value}
                                           onClick={() => handleSaveRadius(option.value)}
                                           className={`w-full text-left px-4 py-2.5 rounded-lg border transition-colors ${defaultRadius === option.value
-                                                ? 'bg-purple-dim border-purple text-purple'
-                                                : 'bg-surface2 border-border text-text hover:border-border2'
+                                             ? 'bg-teal-dim border-teal text-teal'
+                                             : 'bg-surface2 border-border text-text hover:border-border2'
                                              }`}
                                        >
                                           <span className="text-sm font-medium">{option.label}</span>
@@ -172,7 +175,7 @@ export default function SettingsPage() {
                                     href="https://github.com"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-purple hover:underline text-sm"
+                                    className="text-teal hover:underline text-sm"
                                  >
                                     GitHub →
                                  </a>

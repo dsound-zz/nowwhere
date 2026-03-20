@@ -16,7 +16,7 @@ export function RightPanel({ chatPanel, venuePanel }: RightPanelProps) {
             <button
                onClick={() => setActiveTab('chat')}
                className={`flex-1 py-3.5 text-xs font-medium cursor-pointer text-center border-b-2 transition-colors ${activeTab === 'chat'
-                  ? 'text-purple border-b-purple'
+                  ? 'text-teal border-b-teal'
                   : 'text-muted border-b-transparent'
                   }`}
             >
@@ -25,7 +25,7 @@ export function RightPanel({ chatPanel, venuePanel }: RightPanelProps) {
             <button
                onClick={() => setActiveTab('venue')}
                className={`flex-1 py-3.5 text-xs font-medium cursor-pointer text-center border-b-2 transition-colors ${activeTab === 'venue'
-                  ? 'text-purple border-b-purple'
+                  ? 'text-teal border-b-teal'
                   : 'text-muted border-b-transparent'
                   }`}
             >
