@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import mapboxgl from 'mapbox-gl'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
 import { getOpenMojiUrl } from '@/lib/emoji'
+import { getVenueById, getVenueByName } from '@/data/mock-venue-details'
 
 interface Event {
    id: string
@@ -41,6 +43,7 @@ const categoryColors: Record<string, string> = {
 }
 
 export default function MapPage() {
+   const searchParams = useSearchParams()
    const [location, setLocation] = useState<UserLocation | null>(null)
    const [events, setEvents] = useState<Event[]>([])
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
@@ -50,8 +53,21 @@ export default function MapPage() {
    const mapRef = useRef<mapboxgl.Map | null>(null)
    const markersRef = useRef<mapboxgl.Marker[]>([])
 
-   // Get user location
+   // Get target location from URL params or user location
    useEffect(() => {
+      const urlLat = searchParams.get('lat')
+      const urlLng = searchParams.get('lng')
+
+      // If URL has coordinates, use those
+      if (urlLat && urlLng) {
+         setLocation({
+            lat: parseFloat(urlLat),
+            lng: parseFloat(urlLng),
+         })
+         return
+      }
+
+      // Otherwise get user location
       if (navigator.geolocation) {
          navigator.geolocation.getCurrentPosition(
             (pos) => {
@@ -68,7 +84,7 @@ export default function MapPage() {
       } else {
          setLocation(defaultLocation)
       }
-   }, [])
+   }, [searchParams])
 
    // Fetch events
    useEffect(() => {
@@ -95,22 +111,29 @@ export default function MapPage() {
 
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
+      // Get zoom from URL or use default
+      const urlZoom = searchParams.get('zoom')
+      const zoom = urlZoom ? parseFloat(urlZoom) : 14
+
       const map = new mapboxgl.Map({
          container: mapContainerRef.current,
          style: 'mapbox://styles/mapbox/dark-v11',
          center: [location.lng, location.lat],
-         zoom: 14,
+         zoom: zoom,
       })
 
       map.addControl(new mapboxgl.NavigationControl(), 'bottom-right')
 
-      // Add user location marker
-      new mapboxgl.Marker({ color: '#3ecf8e' })
-         .setLngLat([location.lng, location.lat])
-         .addTo(map)
+      // Add user location marker only if not coming from venue link
+      const urlLat = searchParams.get('lat')
+      if (!urlLat) {
+         new mapboxgl.Marker({ color: '#3ecf8e' })
+            .setLngLat([location.lng, location.lat])
+            .addTo(map)
+      }
 
       mapRef.current = map
-   }, [location])
+   }, [location, searchParams])
 
    // Add event markers
    useEffect(() => {
@@ -187,6 +210,24 @@ export default function MapPage() {
       }
    }
 
+   const handleVenueClick = (venueId: string, venueName?: string) => {
+      // Look up venue coordinates from mock data
+      let venue = getVenueById(venueId)
+      if (!venue && venueName) {
+         venue = getVenueByName(venueName)
+      }
+
+      if (venue && mapRef.current) {
+         // Fly to venue location with smooth animation
+         mapRef.current.flyTo({
+            center: [venue.lng, venue.lat],
+            zoom: 16,
+            duration: 1500,
+            essential: true
+         })
+      }
+   }
+
    return (
       <div className="flex h-screen overflow-hidden">
          <Sidebar />
@@ -247,7 +288,7 @@ export default function MapPage() {
                   </div>
                )
             }
-            venuePanel={<VenuePanel />}
+            venuePanel={<VenuePanel onVenueClick={handleVenueClick} />}
          />
       </div>
    )

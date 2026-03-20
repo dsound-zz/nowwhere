@@ -6,6 +6,7 @@ import { Emoji } from '@/components/ui/Emoji'
 interface EventCardProps {
    event: {
       id: string
+      venue_id?: string | null
       title: string
       description: string | null
       emoji: string
@@ -22,6 +23,7 @@ interface EventCardProps {
    isHero?: boolean
    onJoin?: (eventId: string) => void
    onClick?: (eventId: string) => void
+   onVenueClick?: (venueId: string, venueName?: string) => void
 }
 
 const categoryColors: Record<string, string> = {
@@ -62,7 +64,7 @@ function getAvatarInitials(name: string): string {
    return name.substring(0, 2).toUpperCase()
 }
 
-export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardProps) {
+export function EventCard({ event, isHero = false, onJoin, onClick, onVenueClick }: EventCardProps) {
    const [isJoining, setIsJoining] = useState(false)
 
    const handleJoin = async (e: React.MouseEvent) => {
@@ -71,6 +73,13 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
          setIsJoining(true)
          await onJoin(event.id)
          setIsJoining(false)
+      }
+   }
+
+   const handleVenueClick = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (event.venue_id && onVenueClick) {
+         onVenueClick(event.venue_id, event.venue_name || undefined)
       }
    }
 
@@ -117,7 +126,7 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
                   <button
                      onClick={handleJoin}
                      disabled={isJoining}
-                     className="bg-teal text-white border-none rounded-full px-4.5 py-2 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:opacity-88 hover:scale-[1.03] disabled:opacity-50"
+                     className="bg-teal text-white border-none rounded-full px-6 py-2 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:opacity-88 hover:scale-[1.03] disabled:opacity-50"
                   >
                      {isJoining ? 'Joining...' : "I'm going →"}
                   </button>
@@ -139,7 +148,19 @@ export function EventCard({ event, isHero = false, onJoin, onClick }: EventCardP
             {event.title}
          </h3>
          <p className="text-[11px] text-muted mb-2.5">
-            {event.venue_name || 'Self-organised'}{event.address && ` · ${event.address}`}
+            {event.venue_name ? (
+               <>
+                  <span
+                     onClick={handleVenueClick}
+                     className="text-teal hover:underline cursor-pointer"
+                  >
+                     {event.venue_name}
+                  </span>
+                  {event.address && ` · ${event.address}`}
+               </>
+            ) : (
+               'Self-organised'
+            )}
          </p>
          <div className="flex flex-wrap gap-1.5 mb-3">
             {event.category && (

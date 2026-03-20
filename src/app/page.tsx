@@ -6,8 +6,10 @@ import { EventCard } from '@/components/events/EventCard'
 import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
+import { VenueDetailPanel } from '@/components/events/VenueDetailPanel'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { Emoji } from '@/components/ui/Emoji'
+import { getVenueById, getVenueByName, type VenueDetail } from '@/data/mock-venue-details'
 
 interface Event {
   id: string
@@ -68,6 +70,24 @@ export default function FeedPage() {
   const [displayName, setDisplayName] = useState<string>('You')
   const [showJoinModal, setShowJoinModal] = useState(false)
   const [joiningEventId, setJoiningEventId] = useState<string | null>(null)
+
+  // Venue detail panel state
+  const [selectedVenue, setSelectedVenue] = useState<VenueDetail | null>(null)
+
+  // Handle venue click from EventCard or VenuePanel
+  const handleVenueClick = (venueId: string, venueName?: string) => {
+    // Try lookup by ID first
+    let venue = getVenueById(venueId)
+
+    // Fallback to name lookup if ID fails and name is provided
+    if (!venue && venueName) {
+      venue = getVenueByName(venueName)
+    }
+
+    if (venue) {
+      setSelectedVenue(venue)
+    }
+  }
 
   // Request location on mount
   useEffect(() => {
@@ -311,6 +331,7 @@ export default function FeedPage() {
                 isHero
                 onJoin={handleJoin}
                 onClick={handleEventClick}
+                onVenueClick={handleVenueClick}
               />
             )}
 
@@ -330,6 +351,7 @@ export default function FeedPage() {
                       event={event}
                       onJoin={handleJoin}
                       onClick={handleEventClick}
+                      onVenueClick={handleVenueClick}
                     />
                   ))}
                 </div>
@@ -352,6 +374,7 @@ export default function FeedPage() {
                       event={event}
                       onJoin={handleJoin}
                       onClick={handleEventClick}
+                      onVenueClick={handleVenueClick}
                     />
                   ))}
                 </div>
@@ -389,8 +412,16 @@ export default function FeedPage() {
             </div>
           )
         }
-        venuePanel={<VenuePanel />}
+        venuePanel={<VenuePanel onVenueClick={handleVenueClick} />}
       />
+
+      {/* Venue Detail Panel */}
+      {selectedVenue && (
+        <VenueDetailPanel
+          venue={selectedVenue}
+          onClose={() => setSelectedVenue(null)}
+        />
+      )}
 
       {/* Join Modal */}
       {showJoinModal && (

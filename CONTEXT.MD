@@ -2,6 +2,39 @@
 
 ## Recent Changes
 
+### March 20, 2026 - Venue Detail Side Panel
+
+**What Changed:** Added interactive venue detail panel that slides in from the right when clicking on a venue.
+
+**Features:**
+
+- Click venue name on EventCard → opens venue detail panel
+- Click venue in Venues tab → opens venue detail panel
+- Panel contains: venue name, category, description, address, hours, rating, vibe tags, contact info
+- Mini interactive Mapbox GL map (dark-v11 style) with venue marker
+- Click map → navigates to `/map?lat=X&lng=Y&zoom=16&venue=Name`
+- Click backdrop or X button → closes panel
+- Smooth slide-in animation (300ms)
+
+**Files Created:**
+
+- [`src/data/mock-venue-details.ts`](src/data/mock-venue-details.ts) — Mock venue data with descriptions, hours, ratings, coordinates
+- [`src/components/events/VenueDetailPanel.tsx`](src/components/events/VenueDetailPanel.tsx) — Slide-in panel component with mini Mapbox map
+
+**Files Modified:**
+
+- [`src/app/page.tsx`](src/app/page.tsx) — Added `selectedVenue` state, `handleVenueClick` handler, renders `VenueDetailPanel`
+- [`src/components/events/EventCard.tsx`](src/components/events/EventCard.tsx) — Added `onVenueClick` prop, clickable venue name with teal styling
+- [`src/components/events/VenuePanel.tsx`](src/components/events/VenuePanel.tsx) — Added `onVenueClick` prop, wired to venue card clicks
+- [`src/app/globals.css`](src/app/globals.css) — Added `slideInRight` and `fadeIn` animations
+
+**Key Learnings:**
+
+- Mapbox GL maps in slide-in panels work well with proper cleanup in `useEffect` return
+- Click propagation must be stopped on interactive children (`e.stopPropagation()`) to prevent parent handlers from firing
+- Panel z-index (40) sits below modals (50) but above main content
+- **ID mismatch solution**: Database uses UUID venue IDs, mock data uses custom IDs. Implemented dual lookup: try ID first, fallback to name-based matching via `getVenueByName()`
+
 ### March 20, 2026 - Design System Refresh: Soft Teal + OpenMoji
 
 **What Changed:** Complete visual refresh replacing purple accent with soft teal and native emojis with OpenMoji SVGs.
