@@ -215,6 +215,8 @@ export interface Database {
           radius_m?: number
           filter_category?: string | null
           result_limit?: number
+          is_free_only?: boolean
+          is_happening_now?: boolean
         }
         Returns: {
           id: string

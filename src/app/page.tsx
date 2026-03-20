@@ -52,7 +52,7 @@ const defaultLocation: UserLocation = {
 }
 
 export default function FeedPage() {
-  const { user } = useAuth()
+  const { user, setAnonDisplayName, getAnonDisplayName } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [location, setLocation] = useState<UserLocation | null>(null)
   const [activeCategory, setActiveCategory] = useState('all')
@@ -138,8 +138,10 @@ export default function FeedPage() {
 
     try {
       const category = activeCategory === 'all' ? '' : `&category=${activeCategory}`
+      const freeOnlyParam = freeOnlyFilter ? '&free_only=true' : ''
+      const happeningNowParam = rightNowFilter ? '&happening_now=true' : ''
       const response = await fetch(
-        `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000${category}`
+        `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000${category}${freeOnlyParam}${happeningNowParam}`
       )
 
       if (!response.ok) {
@@ -153,7 +155,7 @@ export default function FeedPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [location, activeCategory])
+  }, [location, activeCategory, rightNowFilter, freeOnlyFilter])
 
   useEffect(() => {
     fetchEvents()
@@ -224,10 +226,14 @@ export default function FeedPage() {
     if (!joiningEventId) return
 
     try {
+      // FR-5 & FR-11: Trigger anonymous sign-in for "First L." format users
+      // Store display name before joining
+      setAnonDisplayName(name)
+
       const response = await fetch(`/api/events/${joiningEventId}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ displayName: name }),
+        body: JSON.stringify({ displayName: name, anonymousSignIn: true }),
       })
 
       const data = await response.json()

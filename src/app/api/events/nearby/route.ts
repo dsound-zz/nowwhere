@@ -29,6 +29,10 @@ export async function GET(request: NextRequest) {
     const radiusM = parseFloat(searchParams.get('radius_m') || '1600') // Default ~1 mile
     const category = searchParams.get('category') || null
     const limit = parseInt(searchParams.get('limit') || '50', 10)
+    
+    // New filter parameters (FR-18 & FR-19)
+    const isFreeOnly = searchParams.get('free_only') === 'true'
+    const isHappeningNow = searchParams.get('happening_now') === 'true'
 
     if (!lat || !lng) {
       return NextResponse.json(
@@ -39,13 +43,15 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Call the PostGIS function for nearby events
+    // Call the PostGIS function for nearby events with new filters
     const { data, error } = await supabase.rpc('get_nearby_events', {
       lat,
       lng,
       radius_m: radiusM,
       filter_category: category,
-      result_limit: limit
+      result_limit: limit,
+      is_free_only: isFreeOnly,
+      is_happening_now: isHappeningNow
     })
 
     if (error) {
@@ -85,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       events: eventsWithVenues,
-      query: { lat, lng, radius_m: radiusM, category },
+      query: { lat, lng, radius_m: radiusM, category, free_only: isFreeOnly, happening_now: isHappeningNow },
       count: eventsWithVenues.length
     })
   } catch (err) {

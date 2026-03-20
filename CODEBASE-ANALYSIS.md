@@ -273,13 +273,26 @@ create table venues (
   category text,                    -- 'music' | 'food' | 'art' | 'sport' | 'social'
   vibe_tags text[],                 -- e.g. ['jazz', 'late night', 'free']
   verified boolean default false,
+  description text,                 -- venue description for detail panel
+  hours text,                       -- operating hours, e.g. 'Open until 2am'
+  phone text,                       -- contact phone number
+  website text,                     -- venue website (without protocol)
+  rating numeric(2,1),              -- rating from 0.0 to 5.0
   created_at timestamptz default now()
 );
 ```
 
-**Indexes:** Primary key only  
-**RLS Policies:** Public read-only  
+**Indexes:** Primary key only
+**RLS Policies:** Public read-only
 **Relationships:** Referenced by `events.venue_id` and `email_queue.matched_venue_id`
+
+**Enriched Fields (added March 2026):**
+
+- `description` - Human-readable venue description
+- `hours` - Operating hours string
+- `phone` - Contact phone number
+- `website` - Venue website URL
+- `rating` - Aggregate rating (0.0-5.0)
 
 #### 2. `events`
 
@@ -474,6 +487,36 @@ export type Message = Database["public"]["Tables"]["messages"]["Row"];
 ## API Endpoints
 
 ### Public Endpoints
+
+#### GET `/api/venues/[id]`
+
+Get detailed information about a specific venue.
+
+**Path Parameters:**
+
+- `id` (required) - Venue UUID
+
+**Response:**
+
+```typescript
+{
+  id: string;
+  name: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  category: string | null;
+  vibe_tags: string[] | null;
+  description: string | null;
+  hours: string | null;
+  phone: string | null;
+  website: string | null;
+  rating: number | null;
+  activeEvents: number;  // Count of live events at this venue
+}
+```
+
+**Implementation:** [`src/app/api/venues/[id]/route.ts`](src/app/api/venues/[id]/route.ts)
 
 #### GET `/api/events/nearby`
 
@@ -714,12 +757,15 @@ src/components/
 │   └── ChatPanel.tsx          # Real-time chat UI
 ├── events/
 │   ├── EventCard.tsx          # Event card component
-│   └── VenuePanel.tsx         # Email queue approval UI
+│   ├── VenuePanel.tsx         # Email queue approval UI
+│   └── VenueDetailPanel.tsx   # Venue detail side panel (fetches from API)
 ├── layout/
 │   ├── Sidebar.tsx            # Left navigation (68px)
 │   └── RightPanel.tsx         # Chat + venues (300px)
-└── providers/
-    └── SupabaseProvider.tsx   # Auth context provider
+├── providers/
+│   └── SupabaseProvider.tsx   # Auth context provider
+└── ui/
+    └── Emoji.tsx               # Emoji rendering component
 ```
 
 #### Layout System
@@ -1012,6 +1058,47 @@ Return { expired_count }
 Expired events no longer appear in get_nearby_events results
 ```
 
+#### Venue Detail Flow
+
+```
+User clicks venue name on EventCard
+ ↓
+onVenueClick(venueId) called
+ ↓
+setSelectedVenueId(venueId) - updates state
+ ↓
+VenueDetailPanel receives venueId prop
+ ↓
+useEffect triggers fetchVenue()
+ ↓
+GET /api/venues/{venueId}
+ ↓
+Supabase query:
+ - SELECT * from venues WHERE id = venueId
+ - Parse PostGIS location to lat/lng
+ - COUNT active events at venue
+ ↓
+Return venue details:
+ {
+   id, name, address, lat, lng,
+   category, vibe_tags,
+   description, hours, phone, website, rating,
+   activeEvents
+ }
+ ↓
+VenueDetailPanel renders:
+ - Header with name, category, rating
+ - Description
+ - Hours, phone, website (if available)
+ - Vibe tags
+ - Active events count
+ - Map link
+ ↓
+User can click "View on Map" to open directions
+ ↓
+Close button clears selectedVenueId state
+```
+
 ---
 
 ## Current Limitations
@@ -1248,7 +1335,10 @@ nowhere-app/
 │   │   │   │       └── reject/     # Reject email (stub)
 │   │   │   ├── events/
 │   │   │   │   ├── [id]/join/      # Join event
+│   │   │   │   ├── my-attendances/ # Get user's joined events
 │   │   │   │   └── nearby/         # Get nearby events
+│   │   │   ├── venues/
+│   │   │   │   └── [id]/           # Get venue details
 │   │   │   └── inbound-email/      # Email webhook
 │   │   ├── auth/
 │   │   │   ├── callback/           # Auth callback route
@@ -1269,6 +1359,7 @@ nowhere-app/
 │   │   │   └── ChatPanel.tsx       # Real-time chat UI
 │   │   ├── events/
 │   │   │   ├── EventCard.tsx       # Event card component
+│   │   │   ├── VenueDetailPanel.tsx # Venue detail side panel
 │   │   │   └── VenuePanel.tsx      # Email approval UI
 │   │   ├── layout/
 │   │   │   ├── RightPanel.tsx      # Right sidebar
@@ -1276,7 +1367,8 @@ nowhere-app/
 │   │   └── providers/
 │   │       └── SupabaseProvider.tsx # Auth provider
 │   ├── data/
-│   │   └── seed-venues.json        # Static venue data (40 NYC venues)
+│   │   ├── mock-venue-details.ts   # Mock venue detail types (deprecated)
+│   │   └── seed-venues.json        # Static venue data (30+ NYC venues with enriched fields)
 │   ├── lib/
 │   │   ├── event-generator.ts      # Event generation utilities
 │   │   ├── foursquare.ts           # Foursquare API client
@@ -1289,7 +1381,8 @@ nowhere-app/
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20260317124752_initial_schema.sql
-│   │   └── 20260317190000_add_coords_to_nearby_events.sql
+│   │   ├── 20260317190000_add_coords_to_nearby_events.sql
+│   │   └── 20260320170000_add_venue_details.sql
 │   ├── schema.sql                  # Complete schema
 │   └── seed.sql                    # Seed data (8 events, 6 venues)
 ├── .env.local.example              # Environment variables template

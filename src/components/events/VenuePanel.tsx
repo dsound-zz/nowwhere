@@ -13,7 +13,9 @@ interface EmailQueueItem {
       title?: string
       category?: string
       emoji?: string
+      parse_error?: boolean
    } | null
+   body_text?: string | null
 }
 
 interface Venue {
@@ -38,6 +40,7 @@ const categoryEmojis: Record<string, string> = {
 export function VenuePanel({ onVenueClick }: VenuePanelProps) {
    const [emails, setEmails] = useState<EmailQueueItem[]>([])
    const [venues, setVenues] = useState<Venue[]>([])
+   const [reparsingId, setReparsingId] = useState<string | null>(null)
    const supabase = createClient()
 
    useEffect(() => {
@@ -45,7 +48,7 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
       const fetchEmails = async () => {
          const { data } = await supabase
             .from('email_queue')
-            .select('id, from_address, subject, status, parsed_data')
+            .select('id, from_address, subject, status, parsed_data, body_text')
             .eq('status', 'pending')
             .order('received_at', { ascending: false })
             .limit(5)
@@ -92,6 +95,33 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
       }
    }
 
+   // FR-12: Re-parse button for failed email parsing with "strict" instruction
+   const handleReparse = async (emailId: string) => {
+      setReparsingId(emailId)
+
+      try {
+         const response = await fetch(`/api/email-queue/${emailId}/reparse`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ strict: true }),
+         })
+
+         if (response.ok) {
+            const data = await response.json()
+            // Update the email in the list with new parsed_data
+            setEmails(emails.map(e =>
+               e.id === emailId
+                  ? { ...e, parsed_data: data.parsed_data }
+                  : e
+            ))
+         }
+      } catch (err) {
+         console.error('Failed to re-parse email:', err)
+      } finally {
+         setReparsingId(null)
+      }
+   }
+
    return (
       <>
          {emails.length > 0 && (
@@ -108,6 +138,19 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
                   <div key={email.id} className="bg-surface2 rounded-lg p-2.5 mb-1.5 last:mb-0">
                      <div className="text-[11px] font-semibold mb-0.5">{email.from_address}</div>
                      <div className="text-[11px] text-muted mb-1.5">{email.subject}</div>
+
+                     {/* Show parsed data preview if available */}
+                     {email.parsed_data && (
+                        <div className="text-[10px] text-muted mb-1.5 bg-surface rounded p-1.5">
+                           <span className="font-medium">Parsed:</span>{' '}
+                           {email.parsed_data.title || 'No title'}
+                           {email.parsed_data.category && ` (${email.parsed_data.category})`}
+                           {email.parsed_data.parse_error && (
+                              <span className="text-coral ml-1">⚠️ Parse issue</span>
+                           )}
+                        </div>
+                     )}
+
                      <div className="flex gap-1.5">
                         <button
                            onClick={() => handleApprove(email.id)}
@@ -118,6 +161,16 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
                         <button className="text-[10px] font-semibold py-1 px-2.5 rounded-full bg-surface text-muted border border-border2 cursor-not-allowed opacity-50">
                            Edit
                         </button>
+                        {/* FR-12: Re-parse button - shown when parse may have issues */}
+                        {(email.parsed_data?.parse_error || !email.parsed_data?.title) && (
+                           <button
+                              onClick={() => handleReparse(email.id)}
+                              disabled={reparsingId === email.id}
+                              className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-purple text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                           >
+                              {reparsingId === email.id ? '⟳...' : '⟳ Re-parse'}
+                           </button>
+                        )}
                         <button
                            onClick={() => handleReject(email.id)}
                            className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-coral text-white transition-opacity hover:opacity-90"

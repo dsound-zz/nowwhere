@@ -52,6 +52,10 @@ export default function MapPage() {
    const mapRef = useRef<mapboxgl.Map | null>(null)
    const markersRef = useRef<mapboxgl.Marker[]>([])
 
+   // FR-18 & FR-19: Filter state for Mapbox markers
+   const [rightNowFilter, setRightNowFilter] = useState(false)
+   const [freeOnlyFilter, setFreeOnlyFilter] = useState(false)
+
    // Get target location from URL params or user location
    useEffect(() => {
       const urlLat = searchParams.get('lat')
@@ -85,14 +89,16 @@ export default function MapPage() {
       }
    }, [searchParams])
 
-   // Fetch events
+   // Fetch events with filters (FR-18 & FR-19)
    useEffect(() => {
       if (!location) return
 
       const fetchEvents = async () => {
          try {
+            const freeOnlyParam = freeOnlyFilter ? '&free_only=true' : ''
+            const happeningNowParam = rightNowFilter ? '&happening_now=true' : ''
             const response = await fetch(
-               `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000`
+               `/api/events/nearby?lat=${location.lat}&lng=${location.lng}&radius_m=5000${freeOnlyParam}${happeningNowParam}`
             )
             const data = await response.json()
             setEvents(data.events || [])
@@ -102,7 +108,7 @@ export default function MapPage() {
       }
 
       fetchEvents()
-   }, [location])
+   }, [location, rightNowFilter, freeOnlyFilter])
 
    // Initialize map
    useEffect(() => {
@@ -242,11 +248,42 @@ export default function MapPage() {
                style={{ width: '100%', height: '100%' }}
             />
 
-            {/* Topbar overlay */}
+            {/* Topbar overlay with filters */}
             <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-bg to-transparent p-4 pointer-events-none">
-               <div className="bg-surface/90 backdrop-blur-lg border border-border rounded-full px-4 py-2 flex items-center gap-3 max-w-md pointer-events-auto">
-                  <h1 className="font-display font-bold text-lg text-teal">Map View</h1>
-                  <span className="text-xs text-muted">{events.length} events nearby</span>
+               <div className="flex flex-col gap-2 pointer-events-auto">
+                  <div className="bg-surface/90 backdrop-blur-lg border border-border rounded-full px-4 py-2 flex items-center gap-3 max-w-md">
+                     <h1 className="font-display font-bold text-lg text-teal">Map View</h1>
+                     <span className="text-xs text-muted">{events.length} events nearby</span>
+                  </div>
+                  {/* FR-18 & FR-19: Filter toggle buttons */}
+                  <div className="flex gap-2">
+                     <button
+                        onClick={() => setRightNowFilter(!rightNowFilter)}
+                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${rightNowFilter
+                              ? 'bg-teal text-white'
+                              : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
+                           }`}
+                     >
+                        <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
+                           <circle cx="12" cy="12" r="10" />
+                           <polyline points="12,6 12,12 16,14" />
+                        </svg>
+                        Right Now
+                     </button>
+                     <button
+                        onClick={() => setFreeOnlyFilter(!freeOnlyFilter)}
+                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${freeOnlyFilter
+                              ? 'bg-teal text-white'
+                              : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
+                           }`}
+                     >
+                        <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
+                           <line x1="12" y1="1" x2="12" y2="23" />
+                           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        Free Only
+                     </button>
+                  </div>
                </div>
             </div>
 
