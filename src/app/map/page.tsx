@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
+import { VenueDetailPanel } from '@/components/events/VenueDetailPanel'
 import { getOpenMojiUrl } from '@/lib/emoji'
 
 interface Event {
@@ -46,6 +47,7 @@ export default function MapPage() {
    const [location, setLocation] = useState<UserLocation | null>(null)
    const [events, setEvents] = useState<Event[]>([])
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
    const [attendeeId, setAttendeeId] = useState<string | null>(null)
    const [displayName] = useState<string>('You')
    const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -216,7 +218,10 @@ export default function MapPage() {
    }
 
    const handleVenueClick = async (venueId: string) => {
-      // Fetch venue coordinates from API
+      // Set selected venue to show detail panel
+      setSelectedVenueId(venueId)
+
+      // Fetch venue coordinates from API and fly to location
       try {
          const response = await fetch(`/api/venues/${venueId}`)
          if (response.ok) {
@@ -260,8 +265,8 @@ export default function MapPage() {
                      <button
                         onClick={() => setRightNowFilter(!rightNowFilter)}
                         className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${rightNowFilter
-                              ? 'bg-teal text-white'
-                              : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
+                           ? 'bg-teal text-white'
+                           : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
                            }`}
                      >
                         <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
@@ -273,8 +278,8 @@ export default function MapPage() {
                      <button
                         onClick={() => setFreeOnlyFilter(!freeOnlyFilter)}
                         className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${freeOnlyFilter
-                              ? 'bg-teal text-white'
-                              : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
+                           ? 'bg-teal text-white'
+                           : 'bg-surface/90 backdrop-blur-lg border border-border text-muted hover:text-text hover:border-teal'
                            }`}
                      >
                         <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
@@ -328,7 +333,15 @@ export default function MapPage() {
                )
             }
             venuePanel={<VenuePanel onVenueClick={handleVenueClick} />}
-         />
+          />
+
+         {/* Venue Detail Panel */}
+         {selectedVenueId && (
+            <VenueDetailPanel
+               venueId={selectedVenueId}
+               onClose={() => setSelectedVenueId(null)}
+            />
+         )}
       </div>
    )
 }

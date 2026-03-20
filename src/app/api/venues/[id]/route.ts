@@ -1,27 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServiceClient()
-    const venueId = params.id
+    const supabase = await createClient()
+    const { id: venueId } = await params
 
-    // Fetch venue details
+    // Fetch venue details with coordinates extracted using PostGIS
     const { data: venue, error } = await supabase
-      .from('venues')
-      .select('*')
-      .eq('id', venueId)
+      .rpc('get_venue_by_id', { venue_id: venueId })
       .single()
 
     if (error) {
       console.error('Error fetching venue:', error)
-      return NextResponse.json(
-        { error: 'Venue not found' },
-        { status: 404 }
-      )
+      // Fallback: try direct query
+      const { data: fallbackVenue, error: fallbackError } = await supabase
+        .from('venues')
+        .select('*')
+        .eq('id', venueId)
+        .single()
+      
+      if (fallbackError || !fallbackVenue) {
+        return NextResponse.json(
+          { error: 'Venue not found' },
+          { status: 404 }
+        )
+      }
+      
+      // Return venue without coordinates (map won't fly but details will show)
+      return NextResponse.json({
+        id: fallbackVenue.id,
+        name: fallbackVenue.name,
+        address: fallbackVenue.address,
+        lat: null,
+        lng: null,
+        category: fallbackVenue.category,
+        vibe_tags: fallbackVenue.vibe_tags || [],
+        description: fallbackVenue.description,
+        hours: fallbackVenue.hours,
+        phone: fallbackVenue.phone,
+        website: fallbackVenue.website,
+        rating: fallbackVenue.rating,
+        email: fallbackVenue.email,
+        activeEvents: 0,
+      })
     }
 
     if (!venue) {
@@ -29,18 +54,6 @@ export async function GET(
         { error: 'Venue not found' },
         { status: 404 }
       )
-    }
-
-    // Transform location to lat/lng
-    let lat = null
-    let lng = null
-    if (venue.location) {
-      // Parse PostGIS point format: "SRID=4326;POINT(lng lat)"
-      const match = venue.location.match(/POINT\(([^ ]+) ([^)]+)\)/)
-      if (match) {
-        lng = parseFloat(match[1])
-        lat = parseFloat(match[2])
-      }
     }
 
     // Get active events count for this venue
@@ -54,8 +67,8 @@ export async function GET(
       id: venue.id,
       name: venue.name,
       address: venue.address,
-      lat,
-      lng,
+      lat: venue.lat,
+      lng: venue.lng,
       category: venue.category,
       vibe_tags: venue.vibe_tags || [],
       description: venue.description,
@@ -63,6 +76,7 @@ export async function GET(
       phone: venue.phone,
       website: venue.website,
       rating: venue.rating,
+      email: venue.email,
       activeEvents: activeEventsCount || 0,
     }
 
