@@ -56,35 +56,35 @@ export async function POST(
     }
     
     let currentUserId = user?.id || null
+    let isNewAnonymousUser = false
     
     // FR-5 & FR-11: If user is not authenticated and provides "First L." name,
-    // create an anonymous auth session
+    // use proper Supabase anonymous sign-in
     if (!user && displayName && isAnonymousSignIn) {
-      // Use service client to create anonymous user
-      const serviceClient = createServiceClient()
+      // Use Supabase's built-in anonymous auth
+      // Note: This requires anonymous auth to be enabled in Supabase dashboard
+      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
       
-      const { data: anonData, error: anonError } = await serviceClient.auth.admin.createUser({
-        email: undefined,
-        email_confirm: true,
-        user_metadata: {
-          display_name: displayName,
-          is_anonymous: true
-        }
-      })
-      
-      if (anonError || !anonData.user) {
-        console.error('Error creating anonymous user:', anonError)
+      if (anonError) {
+        console.error('Error signing in anonymously:', anonError)
         return NextResponse.json(
-          { error: 'Failed to create anonymous session' },
+          { error: 'Failed to create anonymous session. Please ensure anonymous auth is enabled in Supabase.' },
           { status: 500 }
         )
       }
       
-      currentUserId = anonData.user.id
-      
-      // Return the anonymous user ID so client can set up session
-      // Note: In production, you'd want to use a proper anonymous sign-in flow
-      // For now, we'll create the attendee with the anonymous user ID
+      if (anonData.user) {
+        currentUserId = anonData.user.id
+        isNewAnonymousUser = true
+        
+        // Update user metadata with display name
+        await supabase.auth.updateUser({
+          data: { 
+            display_name: displayName,
+            is_anonymous: true 
+          }
+        })
+      }
     }
     
     // Create attendee record
@@ -94,8 +94,9 @@ export async function POST(
       display_name: displayName
     }
     
-    // Use service client if we created an anonymous user, otherwise use regular client
-    const clientToUse = (!user && currentUserId) ? createServiceClient() : supabase
+    // Use service client if we created an anonymous user (to bypass RLS for insert)
+    // Otherwise use regular client which has the user's session
+    const clientToUse = isNewAnonymousUser ? createServiceClient() : supabase
     
     const { data: attendee, error: attendeeError } = await clientToUse
       .from('attendees')
@@ -122,7 +123,8 @@ export async function POST(
       attendee_id: attendee.id,
       chat_channel: `event-${eventId}`,
       message: 'Successfully joined event',
-      anonymous_user_id: (!user && currentUserId) ? currentUserId : undefined
+      anonymous_user_id: isNewAnonymousUser ? currentUserId : undefined,
+      is_new_anonymous: isNewAnonymousUser
     })
   } catch (err) {
     console.error('Unexpected error:', err)

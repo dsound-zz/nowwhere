@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import mapboxgl from 'mapbox-gl'
 import { Emoji } from '@/components/ui/Emoji'
+import { useAuth } from '@/components/providers/SupabaseProvider'
 
 interface VenueDetail {
    id: string
    name: string
+   email: string | null
    address: string | null
    lat: number | null
    lng: number | null
@@ -44,11 +46,15 @@ const categoryEmojis: Record<string, string> = {
 
 export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
    const router = useRouter()
+   const { user } = useAuth()
    const mapContainerRef = useRef<HTMLDivElement>(null)
    const mapRef = useRef<mapboxgl.Map | null>(null)
    const [venue, setVenue] = useState<VenueDetail | null>(null)
    const [isLoading, setIsLoading] = useState(true)
    const [error, setError] = useState<string | null>(null)
+   const [isClaiming, setIsClaiming] = useState(false)
+   const [claimError, setClaimError] = useState<string | null>(null)
+   const [claimSuccess, setClaimSuccess] = useState(false)
 
    // Fetch venue details from API
    useEffect(() => {
@@ -115,6 +121,35 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
       // Navigate to map page with venue coordinates
       router.push(`/map?lat=${venue.lat}&lng=${venue.lng}&zoom=16&venue=${encodeURIComponent(venue.name)}`)
       onClose()
+   }
+
+   // Claim venue - sends magic link to venue email
+   const handleClaimVenue = async () => {
+      if (!venue || !venue.email) {
+         setClaimError('This venue does not have a registered email')
+         return
+      }
+
+      setIsClaiming(true)
+      setClaimError(null)
+
+      try {
+         const response = await fetch(`/api/venues/${venue.id}/claim`, {
+            method: 'POST',
+         })
+
+         const data = await response.json()
+
+         if (!response.ok) {
+            throw new Error(data.error || 'Failed to claim venue')
+         }
+
+         setClaimSuccess(true)
+      } catch (err) {
+         setClaimError(err instanceof Error ? err.message : 'Failed to claim venue')
+      } finally {
+         setIsClaiming(false)
+      }
    }
 
    const handleBackdropClick = (e: React.MouseEvent) => {
@@ -329,6 +364,30 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
                            </a>
                         )}
                      </div>
+                  </div>
+               )}
+
+               {/* Claim Venue Button */}
+               {!user && venue.email && !venue.email.includes('placeholder') && (
+                  <div className="border-t border-border pt-4 mt-4">
+                     <button
+                        onClick={handleClaimVenue}
+                        disabled={isClaiming || claimSuccess}
+                        className="w-full bg-teal/10 text-teal font-medium py-2.5 rounded-lg text-sm transition-colors hover:bg-teal/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                     >
+                        {isClaiming ? 'Sending...' : claimSuccess ? 'Magic link sent!' : 'Claim this venue'}
+                     </button>
+                     {claimError && (
+                        <p className="text-coral text-xs mt-2">{claimError}</p>
+                     )}
+                     {claimSuccess && (
+                        <p className="text-green text-xs mt-2">
+                           Check your email for a magic link to manage this venue.
+                        </p>
+                     )}
+                     <p className="text-muted text-[10px] mt-2 text-center">
+                        We send a magic link to the venue registered email
+                     </p>
                   </div>
                )}
             </div>

@@ -2,6 +2,53 @@
 
 ## Recent Changes
 
+### March 20, 2026 - Venue Management & Ownership System
+
+**What Changed:** Added complete venue management system with admin UI, Foursquare integration, and venue ownership claims.
+
+**Features:**
+
+- **Admin Venue Dashboard** (`/admin/venues`)
+  - Search Foursquare Places API for local venues
+  - Import venues directly into database with one click
+  - View all venues with their event counts
+  - Quick-add events to any venue
+
+- **Claim Venue Flow**
+  - "Claim this Venue" button on VenueDetailPanel
+  - Sends Supabase Magic Link to venue's registered email
+  - Authenticates venue owner without password
+  - Redirects to venue management page after verification
+
+- **Venue Owner Management** (`/admin/venues/[id]/manage`)
+  - Venue owners can create/edit/delete their own events
+  - Full CRUD for events with emoji picker, categories, pricing
+  - Ownership verified via RLS policies
+
+**Files Created:**
+
+- [`src/app/admin/venues/page.tsx`](src/app/admin/venues/page.tsx) — Admin venue dashboard with Foursquare search
+- [`src/app/admin/venues/[id]/manage/page.tsx`](src/app/admin/venues/[id]/manage/page.tsx) — Venue owner management page
+- [`src/app/api/foursquare/search/route.ts`](src/app/api/foursquare/search/route.ts) — Foursquare Places API search
+- [`src/app/api/venues/route.ts`](src/app/api/venues/route.ts) — Venue CRUD API
+- [`src/app/api/venues/[id]/claim/route.ts`](src/app/api/venues/[id]/claim/route.ts) — Claim venue with magic link
+- [`src/app/api/events/route.ts`](src/app/api/events/route.ts) — Event creation API
+- [`src/app/api/events/[id]/route.ts`](src/app/api/events/[id]/route.ts) — Event PATCH/DELETE for owners
+- [`src/supabase/migrations/20260321000000_venue_owners.sql`](supabase/migrations/20260321000000_venue_owners.sql) — Venue owners table + RLS
+
+**Files Modified:**
+
+- [`src/components/events/VenueDetailPanel.tsx`](src/components/events/VenueDetailPanel.tsx) — Added "Claim this Venue" button
+- [`src/app/api/events/[id]/join/route.ts`](src/app/api/events/[id]/join/route.ts) — Updated to use proper Supabase signInAnonymously()
+- [`src/types/database.ts`](src/types/database.ts) — Added venue_owners table types
+
+**Key Learnings:**
+
+- Foursquare API can be used without key (returns mock data in dev)
+- Venue owners need magic link flow to avoid password friction
+- RLS policies must allow venue owners to INSERT/UPDATE events for their venues
+- Service client required for operations that bypass RLS (admin imports)
+
 ### March 20, 2026 - Event Join State Persistence Fix
 
 **Problem Solved:** Clicking on an already-joined event card triggered a 400 error ("Already joined this event") instead of opening the chat panel. The app lost track of joined events on page refresh because attendee state wasn't persisted.

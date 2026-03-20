@@ -199,6 +199,29 @@ export interface Database {
           created_at?: string
         }
       }
+      venue_owners: {
+        Row: {
+          id: string
+          venue_id: string
+          user_id: string
+          role: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          venue_id: string
+          user_id: string
+          role?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          venue_id?: string
+          user_id?: string
+          role?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -237,6 +260,22 @@ export interface Database {
           location_lng: number | null
         }[]
       }
+      is_anonymous_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      get_anon_display_name: {
+        Args: { user_id: string }
+        Returns: string | null
+      }
+      add_venue_owner: {
+        Args: { venue_id: string }
+        Returns: void
+      }
+      user_owns_venue: {
+        Args: { check_venue_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       event_status: 'pending' | 'live' | 'expired'
@@ -250,3 +289,4 @@ export type Event = Database['public']['Tables']['events']['Row']
 export type EmailQueue = Database['public']['Tables']['email_queue']['Row']
 export type Attendee = Database['public']['Tables']['attendees']['Row']
 export type Message = Database['public']['Tables']['messages']['Row']
+export type VenueOwner = Database['public']['Tables']['venue_owners']['Row']
