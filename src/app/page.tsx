@@ -9,7 +9,6 @@ import { VenuePanel } from '@/components/events/VenuePanel'
 import { VenueDetailPanel } from '@/components/events/VenueDetailPanel'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { Emoji } from '@/components/ui/Emoji'
-import { getVenueById, getVenueByName, type VenueDetail } from '@/data/mock-venue-details'
 
 interface Event {
   id: string
@@ -71,22 +70,15 @@ export default function FeedPage() {
   const [showJoinModal, setShowJoinModal] = useState(false)
   const [joiningEventId, setJoiningEventId] = useState<string | null>(null)
 
+  // Track joined events (event_id -> attendee info)
+  const [joinedEvents, setJoinedEvents] = useState<Record<string, { attendeeId: string; displayName: string }>>({})
+
   // Venue detail panel state
-  const [selectedVenue, setSelectedVenue] = useState<VenueDetail | null>(null)
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
 
   // Handle venue click from EventCard or VenuePanel
-  const handleVenueClick = (venueId: string, venueName?: string) => {
-    // Try lookup by ID first
-    let venue = getVenueById(venueId)
-
-    // Fallback to name lookup if ID fails and name is provided
-    if (!venue && venueName) {
-      venue = getVenueByName(venueName)
-    }
-
-    if (venue) {
-      setSelectedVenue(venue)
-    }
+  const handleVenueClick = (venueId: string) => {
+    setSelectedVenueId(venueId)
   }
 
   // Request location on mount
@@ -110,6 +102,32 @@ export default function FeedPage() {
       setLocation(defaultLocation)
     }
   }, [])
+
+  // Fetch user's joined events on mount (for authenticated users)
+  useEffect(() => {
+    if (!user) return
+
+    const fetchJoinedEvents = async () => {
+      try {
+        const response = await fetch('/api/events/my-attendances')
+        if (response.ok) {
+          const data = await response.json()
+          const joinedMap: Record<string, { attendeeId: string; displayName: string }> = {}
+          for (const att of data.attendances || []) {
+            joinedMap[att.event_id] = {
+              attendeeId: att.attendee_id,
+              displayName: att.display_name || user.email?.split('@')[0] || 'You'
+            }
+          }
+          setJoinedEvents(joinedMap)
+        }
+      } catch (err) {
+        console.error('Failed to fetch joined events:', err)
+      }
+    }
+
+    fetchJoinedEvents()
+  }, [user])
 
   // Fetch events when location changes
   const fetchEvents = useCallback(async () => {
@@ -156,12 +174,40 @@ export default function FeedPage() {
 
         if (response.ok) {
           setAttendeeId(data.attendee_id)
-          setDisplayName(user.email?.split('@')[0] || 'You')
+          const name = user.email?.split('@')[0] || 'You'
+          setDisplayName(name)
+
+          // Track this event as joined
+          setJoinedEvents(prev => ({
+            ...prev,
+            [eventId]: { attendeeId: data.attendee_id, displayName: name }
+          }))
 
           // Set selected event for chat
           const event = events.find((e) => e.id === eventId)
           if (event) {
             setSelectedEvent(event)
+          }
+        } else {
+          // Handle specific error cases
+          if (data.error === 'Already joined this event') {
+            // This shouldn't happen since we check joinedEvents, but handle gracefully
+            // Re-fetch attendances to sync state
+            const attResponse = await fetch('/api/events/my-attendances')
+            if (attResponse.ok) {
+              const attData = await attResponse.json()
+              const att = attData.attendances?.find((a: any) => a.event_id === eventId)
+              if (att) {
+                setAttendeeId(att.attendee_id)
+                setDisplayName(att.display_name || user.email?.split('@')[0] || 'You')
+                setJoinedEvents(prev => ({
+                  ...prev,
+                  [eventId]: { attendeeId: att.attendee_id, displayName: att.display_name || name }
+                }))
+                const event = events.find((e) => e.id === eventId)
+                if (event) setSelectedEvent(event)
+              }
+            }
           }
         }
       } catch (err) {
@@ -190,6 +236,12 @@ export default function FeedPage() {
         setAttendeeId(data.attendee_id)
         setDisplayName(name)
 
+        // Track this event as joined
+        setJoinedEvents(prev => ({
+          ...prev,
+          [joiningEventId]: { attendeeId: data.attendee_id, displayName: name }
+        }))
+
         // Set selected event for chat
         const event = events.find((e) => e.id === joiningEventId)
         if (event) {
@@ -207,9 +259,15 @@ export default function FeedPage() {
   const handleEventClick = (eventId: string) => {
     const event = events.find((e) => e.id === eventId)
     if (event) {
-      if (attendeeId) {
+      // Check if already joined
+      const joinedInfo = joinedEvents[eventId]
+      if (joinedInfo) {
+        // Already joined - open chat directly
+        setAttendeeId(joinedInfo.attendeeId)
+        setDisplayName(joinedInfo.displayName)
         setSelectedEvent(event)
       } else {
+        // Not joined yet - attempt to join
         handleJoin(eventId)
       }
     }
@@ -416,10 +474,10 @@ export default function FeedPage() {
       />
 
       {/* Venue Detail Panel */}
-      {selectedVenue && (
+      {selectedVenueId && (
         <VenueDetailPanel
-          venue={selectedVenue}
-          onClose={() => setSelectedVenue(null)}
+          venueId={selectedVenueId}
+          onClose={() => setSelectedVenueId(null)}
         />
       )}
 

@@ -23,7 +23,7 @@ interface EventCardProps {
    isHero?: boolean
    onJoin?: (eventId: string) => void
    onClick?: (eventId: string) => void
-   onVenueClick?: (venueId: string, venueName?: string) => void
+   onVenueClick?: (venueId: string) => void
 }
 
 const categoryColors: Record<string, string> = {
@@ -79,7 +79,7 @@ export function EventCard({ event, isHero = false, onJoin, onClick, onVenueClick
    const handleVenueClick = (e: React.MouseEvent) => {
       e.stopPropagation()
       if (event.venue_id && onVenueClick) {
-         onVenueClick(event.venue_id, event.venue_name || undefined)
+         onVenueClick(event.venue_id)
       }
    }
 

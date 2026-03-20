@@ -24,7 +24,7 @@ interface Venue {
 }
 
 interface VenuePanelProps {
-   onVenueClick?: (venueId: string, venueName: string) => void
+   onVenueClick?: (venueId: string) => void
 }
 
 const categoryEmojis: Record<string, string> = {
@@ -137,7 +137,7 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
          {venues.map((venue) => (
             <div
                key={venue.id}
-               onClick={() => onVenueClick?.(venue.id, venue.name)}
+               onClick={() => onVenueClick?.(venue.id)}
                className="bg-surface2 rounded-[--radius-sm] p-3 mb-2.5 cursor-pointer border border-transparent transition-colors hover:border-border2"
             >
                <div className="flex items-center gap-2.5 mb-1.5">

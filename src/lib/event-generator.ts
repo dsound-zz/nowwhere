@@ -8,6 +8,11 @@ export interface SeedVenue {
   lng: number
   category: 'music' | 'food' | 'art' | 'sport' | 'social'
   vibe_tags: string[]
+  description?: string
+  hours?: string
+  phone?: string
+  website?: string
+  rating?: number
 }
 
 export interface GeneratedEvent {

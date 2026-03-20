@@ -79,6 +79,11 @@ export async function POST(request: NextRequest) {
       category: venue.category,
       vibe_tags: venue.vibe_tags,
       verified: true,
+      description: venue.description || null,
+      hours: venue.hours || null,
+      phone: venue.phone || null,
+      website: venue.website || null,
+      rating: venue.rating || null,
     }))
 
     const { data: upsertedVenues, error: venueError } = await supabase

@@ -13,7 +13,7 @@ interface EmojiProps {
 /**
  * Emoji component that renders OpenMoji SVGs with native emoji fallback
  */
-export function Emoji({ emoji, size = 24, className = '', alt }: EmojiProps) {
+export function Emoji({ emoji, size = 28, className = '', alt }: EmojiProps) {
    const [useFallback, setUseFallback] = useState(false)
 
    // If OpenMoji fails to load, show native emoji

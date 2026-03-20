@@ -1,14 +1,28 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import mapboxgl from 'mapbox-gl'
 import { Emoji } from '@/components/ui/Emoji'
-import type { VenueDetail } from '@/data/mock-venue-details'
-import { categoryEmojis } from '@/data/mock-venue-details'
+
+interface VenueDetail {
+   id: string
+   name: string
+   address: string | null
+   lat: number | null
+   lng: number | null
+   category: string | null
+   vibe_tags: string[] | null
+   description: string | null
+   hours: string | null
+   phone: string | null
+   website: string | null
+   rating: number | null
+   activeEvents: number
+}
 
 interface VenueDetailPanelProps {
-   venue: VenueDetail
+   venueId: string
    onClose: () => void
 }
 
@@ -20,14 +34,49 @@ const categoryColors: Record<string, string> = {
    social: 'bg-coral-dim text-coral',
 }
 
-export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
+const categoryEmojis: Record<string, string> = {
+   music: '🎷',
+   food: '🍜',
+   art: '🎨',
+   sport: '🏀',
+   social: '🎤',
+}
+
+export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
    const router = useRouter()
    const mapContainerRef = useRef<HTMLDivElement>(null)
    const mapRef = useRef<mapboxgl.Map | null>(null)
+   const [venue, setVenue] = useState<VenueDetail | null>(null)
+   const [isLoading, setIsLoading] = useState(true)
+   const [error, setError] = useState<string | null>(null)
+
+   // Fetch venue details from API
+   useEffect(() => {
+      const fetchVenue = async () => {
+         try {
+            setIsLoading(true)
+            const response = await fetch(`/api/venues/${venueId}`)
+
+            if (!response.ok) {
+               throw new Error('Failed to fetch venue')
+            }
+
+            const data = await response.json()
+            setVenue(data)
+         } catch (err) {
+            console.error('Error fetching venue:', err)
+            setError('Could not load venue details')
+         } finally {
+            setIsLoading(false)
+         }
+      }
+
+      fetchVenue()
+   }, [venueId])
 
    // Initialize mini map
    useEffect(() => {
-      if (!mapContainerRef.current || mapRef.current) return
+      if (!mapContainerRef.current || mapRef.current || !venue?.lat || !venue?.lng) return
 
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -62,6 +111,7 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
    }, [venue])
 
    const handleMapClick = () => {
+      if (!venue) return
       // Navigate to map page with venue coordinates
       router.push(`/map?lat=${venue.lat}&lng=${venue.lng}&zoom=16&venue=${encodeURIComponent(venue.name)}`)
       onClose()
@@ -72,6 +122,46 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
       if (e.target === e.currentTarget) {
          onClose()
       }
+   }
+
+   // Loading state
+   if (isLoading) {
+      return (
+         <div
+            className="fixed inset-0 z-40 flex justify-end"
+            onClick={handleBackdropClick}
+         >
+            <div className="absolute inset-0 bg-black/50 animate-fade-in" />
+            <div className="relative w-full sm:w-[380px] h-full bg-surface border-l border-border overflow-y-auto animate-slide-in-right">
+               <div className="flex items-center justify-center h-full">
+                  <div className="text-muted">Loading venue...</div>
+               </div>
+            </div>
+         </div>
+      )
+   }
+
+   // Error state
+   if (error || !venue) {
+      return (
+         <div
+            className="fixed inset-0 z-40 flex justify-end"
+            onClick={handleBackdropClick}
+         >
+            <div className="absolute inset-0 bg-black/50 animate-fade-in" />
+            <div className="relative w-full sm:w-[380px] h-full bg-surface border-l border-border overflow-y-auto animate-slide-in-right">
+               <div className="flex flex-col items-center justify-center h-full gap-4">
+                  <div className="text-coral">{error || 'Venue not found'}</div>
+                  <button
+                     onClick={onClose}
+                     className="text-sm text-muted hover:text-text transition-colors"
+                  >
+                     Close
+                  </button>
+               </div>
+            </div>
+         </div>
+      )
    }
 
    return (
@@ -88,7 +178,7 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
             <div className="sticky top-0 bg-surface border-b border-border px-5 py-4 flex items-center justify-between z-10">
                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-teal-dim flex items-center justify-center">
-                     <Emoji emoji={categoryEmojis[venue.category] || '📍'} size={22} />
+                     <Emoji emoji={categoryEmojis[venue.category || ''] || '📍'} size={22} />
                   </div>
                   <h2 className="font-display font-bold text-lg tracking-[-0.3px]">
                      {venue.name}
@@ -107,47 +197,55 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
             </div>
 
             {/* Mini Map */}
-            <div
-               className="h-[180px] relative cursor-pointer group"
-               onClick={handleMapClick}
-            >
+            {venue.lat && venue.lng && (
                <div
-                  ref={mapContainerRef}
-                  className="w-full h-full"
-                  style={{ width: '100%', height: '100%' }}
-               />
-               {/* Click overlay hint */}
-               <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 transition-colors flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                     <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-                     </svg>
-                     Open in map
+                  className="h-[180px] relative cursor-pointer group"
+                  onClick={handleMapClick}
+               >
+                  <div
+                     ref={mapContainerRef}
+                     className="w-full h-full"
+                     style={{ width: '100%', height: '100%' }}
+                  />
+                  {/* Click overlay hint */}
+                  <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 transition-colors flex items-center justify-center">
+                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                        <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
+                           <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                        </svg>
+                        Open in map
+                     </div>
                   </div>
                </div>
-            </div>
+            )}
 
             {/* Content */}
             <div className="p-5">
                {/* Address */}
-               <div className="flex items-start gap-2.5 mb-4">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-muted fill-none strokeWidth-2 shrink-0 mt-0.5">
-                     <circle cx="12" cy="10" r="3" />
-                     <path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z" />
-                  </svg>
-                  <span className="text-sm text-muted">{venue.address}</span>
-               </div>
+               {venue.address && (
+                  <div className="flex items-start gap-2.5 mb-4">
+                     <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-muted fill-none strokeWidth-2 shrink-0 mt-0.5">
+                        <circle cx="12" cy="10" r="3" />
+                        <path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z" />
+                     </svg>
+                     <span className="text-sm text-muted">{venue.address}</span>
+                  </div>
+               )}
 
                {/* Description */}
-               <p className="text-sm text-text mb-5 leading-relaxed">
-                  {venue.description}
-               </p>
+               {venue.description && (
+                  <p className="text-sm text-text mb-5 leading-relaxed">
+                     {venue.description}
+                  </p>
+               )}
 
                {/* Category & Tags */}
                <div className="flex flex-wrap gap-1.5 mb-5">
-                  <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${categoryColors[venue.category] || 'bg-surface2 text-muted'}`}>
-                     {venue.category.charAt(0).toUpperCase() + venue.category.slice(1)}
-                  </span>
+                  {venue.category && (
+                     <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${categoryColors[venue.category] || 'bg-surface2 text-muted'}`}>
+                        {venue.category.charAt(0).toUpperCase() + venue.category.slice(1)}
+                     </span>
+                  )}
                   {venue.vibe_tags?.map((tag) => (
                      <span
                         key={tag}
@@ -160,13 +258,15 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
 
                {/* Hours & Rating row */}
                <div className="flex items-center gap-4 mb-5">
-                  <div className="flex items-center gap-1.5">
-                     <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-muted fill-none strokeWidth-2">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                     </svg>
-                     <span className="text-xs text-muted">{venue.hours}</span>
-                  </div>
+                  {venue.hours && (
+                     <div className="flex items-center gap-1.5">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-muted fill-none strokeWidth-2">
+                           <circle cx="12" cy="12" r="10" />
+                           <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span className="text-xs text-muted">{venue.hours}</span>
+                     </div>
+                  )}
                   {venue.rating && (
                      <div className="flex items-center gap-1">
                         <div className="flex">
@@ -174,7 +274,7 @@ export function VenueDetailPanel({ venue, onClose }: VenueDetailPanelProps) {
                               <svg
                                  key={i}
                                  viewBox="0 0 24 24"
-                                 className={`w-3.5 h-3.5 ${i < Math.floor(venue.rating) ? 'stroke-amber fill-amber' : 'stroke-faint fill-none'} strokeWidth-2`}
+                                 className={`w-3.5 h-3.5 ${i < Math.floor(venue.rating!) ? 'stroke-amber fill-amber' : 'stroke-faint fill-none'} strokeWidth-2`}
                               >
                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                               </svg>

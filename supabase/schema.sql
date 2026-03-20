@@ -11,6 +11,11 @@ create table venues (
   category text,                    -- 'music' | 'food' | 'art' | 'sport' | 'social'
   vibe_tags text[],                 -- e.g. ['jazz', 'late night', 'free']
   verified boolean default false,
+  description text,                 -- venue description for detail panel
+  hours text,                       -- operating hours, e.g. 'Open until 2am'
+  phone text,                       -- contact phone number
+  website text,                     -- venue website (without protocol)
+  rating numeric(2,1),              -- rating from 0.0 to 5.0
   created_at timestamptz default now()
 );
 

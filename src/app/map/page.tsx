@@ -8,7 +8,6 @@ import { RightPanel } from '@/components/layout/RightPanel'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { VenuePanel } from '@/components/events/VenuePanel'
 import { getOpenMojiUrl } from '@/lib/emoji'
-import { getVenueById, getVenueByName } from '@/data/mock-venue-details'
 
 interface Event {
    id: string
@@ -210,21 +209,24 @@ export default function MapPage() {
       }
    }
 
-   const handleVenueClick = (venueId: string, venueName?: string) => {
-      // Look up venue coordinates from mock data
-      let venue = getVenueById(venueId)
-      if (!venue && venueName) {
-         venue = getVenueByName(venueName)
-      }
-
-      if (venue && mapRef.current) {
-         // Fly to venue location with smooth animation
-         mapRef.current.flyTo({
-            center: [venue.lng, venue.lat],
-            zoom: 16,
-            duration: 1500,
-            essential: true
-         })
+   const handleVenueClick = async (venueId: string) => {
+      // Fetch venue coordinates from API
+      try {
+         const response = await fetch(`/api/venues/${venueId}`)
+         if (response.ok) {
+            const venue = await response.json()
+            if (venue.lat && venue.lng && mapRef.current) {
+               // Fly to venue location with smooth animation
+               mapRef.current.flyTo({
+                  center: [venue.lng, venue.lat],
+                  zoom: 16,
+                  duration: 1500,
+                  essential: true
+               })
+            }
+         }
+      } catch (error) {
+         console.error('Failed to fetch venue:', error)
       }
    }
 

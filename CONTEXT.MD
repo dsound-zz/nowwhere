@@ -2,6 +2,36 @@
 
 ## Recent Changes
 
+### March 20, 2026 - Event Join State Persistence Fix
+
+**Problem Solved:** Clicking on an already-joined event card triggered a 400 error ("Already joined this event") instead of opening the chat panel. The app lost track of joined events on page refresh because attendee state wasn't persisted.
+
+**Root Cause:**
+
+- `attendeeId` state was only set when joining during the current session
+- Page refreshes cleared this state, so clicking an event attempted to re-join
+- API correctly rejected duplicate joins (PostgreSQL unique constraint error code 23505)
+
+**Fixes Applied:**
+
+1. **New API endpoint** [`src/app/api/events/my-attendances/route.ts`](src/app/api/events/my-attendances/route.ts)
+   - Fetches all events the authenticated user has joined
+   - Returns attendee IDs, display names, and event status
+   - Returns empty array for anonymous users
+
+2. **State tracking in main feed** [`src/app/page.tsx`](src/app/page.tsx)
+   - Added `joinedEvents` state map: `{ eventId → { attendeeId, displayName } }`
+   - Fetches joined events on mount for authenticated users
+   - `handleEventClick` checks if already joined → opens chat directly
+   - Updates map when successfully joining a new event
+   - Edge case handling: re-fetches if "Already joined" error occurs
+
+**Key Learnings:**
+
+- User session state should be reconstructed from database on page load
+- Error messages can be used as signals to sync client state with server state
+- Attendee tracking needs to work for both authenticated users and anonymous users with display names
+
 ### March 20, 2026 - Venue Detail Side Panel
 
 **What Changed:** Added interactive venue detail panel that slides in from the right when clicking on a venue.

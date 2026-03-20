@@ -5,7 +5,12 @@
     "lat": 40.7264,
     "lng": -73.9814,
     "category": "music",
-    "vibe_tags": ["jazz", "late night", "electronic"]
+    "vibe_tags": ["jazz", "late night", "electronic"],
+    "description": "Intimate downtown staple featuring avant-garde jazz, electronic, and world music. No-frills atmosphere with a devoted local following.",
+    "hours": "Open until 2am",
+    "rating": 4.5,
+    "phone": "(212) 477-6992",
+    "website": "nublu.net"
   },
   {
     "name": "Mercury Lounge",
@@ -13,7 +18,12 @@
     "lat": 40.7214,
     "lng": -73.9876,
     "category": "music",
-    "vibe_tags": ["indie", "rock", "intimate"]
+    "vibe_tags": ["indie", "rock", "intimate"],
+    "description": "Classic Lower East Side venue known for breaking indie bands. Tight room, great sound, and that authentic NYC rock club feel.",
+    "hours": "Open until 1am",
+    "rating": 4.3,
+    "phone": "(212) 260-4700",
+    "website": "mercuryloungenyc.com"
   },
   {
     "name": "The Slipper Room",
@@ -21,7 +31,12 @@
     "lat": 40.7198,
     "lng": -73.9885,
     "category": "music",
-    "vibe_tags": ["cabaret", "live music", "burlesque"]
+    "vibe_tags": ["cabaret", "live music", "burlesque"],
+    "description": "Glamorous two-level venue with cabaret, burlesque, and live music. Vintage decor and craft cocktails complete the experience.",
+    "hours": "Open until 4am",
+    "rating": 4.4,
+    "phone": "(212) 254-7888",
+    "website": "slipperroomnyc.com"
   },
   {
     "name": "Rockwood Music Hall",
@@ -29,7 +44,11 @@
     "lat": 40.7218,
     "lng": -73.9892,
     "category": "music",
-    "vibe_tags": ["indie", "acoustic", "emerging artists"]
+    "vibe_tags": ["indie", "acoustic", "emerging artists"],
+    "description": "Three stages of live music spanning indie, folk, and experimental. A rite of passage for NYC's emerging artist scene.",
+    "hours": "Open until 2am",
+    "rating": 4.6,
+    "website": "rockwoodmusichall.com"
   },
   {
     "name": "Pianos",
@@ -37,7 +56,12 @@
     "lat": 40.7215,
     "lng": -73.9881,
     "category": "music",
-    "vibe_tags": ["rock", "indie", "dance"]
+    "vibe_tags": ["rock", "indie", "dance"],
+    "description": "Two floors of live music and DJ sets with a laid-back bar vibe. Popular spot for late-night dancing on weekends.",
+    "hours": "Open until 4am",
+    "rating": 3.9,
+    "phone": "(212) 505-3733",
+    "website": "pianosnyc.com"
   },
   {
     "name": "Arlene's Grocery",
@@ -45,247 +69,59 @@
     "lat": 40.722,
     "lng": -73.9877,
     "category": "music",
-    "vibe_tags": ["punk", "rock", "open mic"]
+    "vibe_tags": ["punk", "rock", "open mic"],
+    "description": "Former bodega turned legendary rock venue. Raw energy, cheap drinks, and authentic downtown grit since 1995.",
+    "hours": "Open until 2am",
+    "rating": 4.2,
+    "phone": "(212) 995-1652",
+    "website": "arlenesgrocery.net"
   },
   {
-    "name": "Howl Arts Collective",
+    "name": "Howl Arts",
     "address": "6 E 1st St, New York, NY 10003",
-    "lat": 40.7231,
-    "lng": -73.9921,
+    "lat": 40.723,
+    "lng": -73.993,
     "category": "art",
-    "vibe_tags": ["creative", "workshop", "community"]
+    "vibe_tags": ["gallery", "experimental", "underground"],
+    "description": "Artist-run gallery and performance space in the heart of the East Village. Experimental exhibitions, poetry readings, and avant-garde performances.",
+    "hours": "Open until 10pm",
+    "rating": 4.7,
+    "website": "howlarts.org"
   },
   {
-    "name": "Essex Market",
-    "address": "88 Essex St, New York, NY 10002",
-    "lat": 40.7182,
-    "lng": -73.9883,
-    "category": "food",
-    "vibe_tags": ["market", "diverse", "local"]
+    "name": "Neighbours Bar",
+    "address": "424 E 9th St, New York, NY 10009",
+    "lat": 40.7278,
+    "lng": -73.9796,
+    "category": "social",
+    "vibe_tags": ["dive bar", "neighborhood", "laid-back"],
+    "description": "Unpretentious East Village corner bar with pool tables, cheap drinks, and a friendly local crowd. The kind of place where everyone eventually knows your name.",
+    "hours": "Open until 4am",
+    "rating": 4.0
+  },
+  {
+    "name": "Seward Park Courts",
+    "address": "Seward Park, Essex St, New York, NY 10002",
+    "lat": 40.7145,
+    "lng": -73.9879,
+    "category": "sport",
+    "vibe_tags": ["basketball", "outdoor", "pickup games"],
+    "description": "Popular pickup basketball spot in the historic Seward Park. Games run from dawn to dusk, all skill levels welcome.",
+    "hours": "Open until dusk",
+    "rating": 4.1
   },
   {
     "name": "Katz's Delicatessen",
     "address": "205 E Houston St, New York, NY 10002",
     "lat": 40.7223,
-    "lng": -73.9872,
+    "lng": -73.9874,
     "category": "food",
-    "vibe_tags": ["deli", "iconic", "pastrami"]
-  },
-  {
-    "name": "Russ & Daughters Cafe",
-    "address": "127 Orchard St, New York, NY 10002",
-    "lat": 40.7206,
-    "lng": -73.9889,
-    "category": "food",
-    "vibe_tags": ["bagels", "jewish", "brunch"]
-  },
-  {
-    "name": "Clinton Street Baking Company",
-    "address": "4 Clinton St, New York, NY 10002",
-    "lat": 40.7211,
-    "lng": -73.984,
-    "category": "food",
-    "vibe_tags": ["brunch", "pancakes", "cozy"]
-  },
-  {
-    "name": "Ivan Ramen",
-    "address": "25 Clinton St, New York, NY 10002",
-    "lat": 40.7214,
-    "lng": -73.9838,
-    "category": "food",
-    "vibe_tags": ["ramen", "japanese", "noodles"]
-  },
-  {
-    "name": "Doughnut Plant",
-    "address": "379 Grand St, New York, NY 10002",
-    "lat": 40.7177,
-    "lng": -73.9848,
-    "category": "food",
-    "vibe_tags": ["donuts", "sweets", "coffee"]
-  },
-  {
-    "name": "Economy Candy",
-    "address": "108 Rivington St, New York, NY 10002",
-    "lat": 40.7211,
-    "lng": -73.9887,
-    "category": "food",
-    "vibe_tags": ["candy", "vintage", "nostalgia"]
-  },
-  {
-    "name": "The Meatball Shop",
-    "address": "84 Stanton St, New York, NY 10002",
-    "lat": 40.722,
-    "lng": -73.988,
-    "category": "food",
-    "vibe_tags": ["meatballs", "casual", "italian"]
-  },
-  {
-    "name": "Vanessa's Dumpling House",
-    "address": "118 Eldridge St, New York, NY 10002",
-    "lat": 40.719,
-    "lng": -73.9908,
-    "category": "food",
-    "vibe_tags": ["dumplings", "cheap eats", "chinese"]
-  },
-  {
-    "name": "Schiller's Liquor Bar",
-    "address": "131 Rivington St, New York, NY 10002",
-    "lat": 40.7209,
-    "lng": -73.9885,
-    "category": "food",
-    "vibe_tags": ["bistro", "cocktails", "french"]
-  },
-  {
-    "name": "Max Fish",
-    "address": "120 Orchard St, New York, NY 10002",
-    "lat": 40.7206,
-    "lng": -73.989,
-    "category": "social",
-    "vibe_tags": ["dive bar", "art", "punk"]
-  },
-  {
-    "name": "Neighbours",
-    "address": "438 E 9th St, New York, NY 10009",
-    "lat": 40.7276,
-    "lng": -73.9823,
-    "category": "social",
-    "vibe_tags": ["trivia", "neighborhood", "chill"]
-  },
-  {
-    "name": "The Ten Bells",
-    "address": "247 Broome St, New York, NY 10002",
-    "lat": 40.7181,
-    "lng": -73.9916,
-    "category": "social",
-    "vibe_tags": ["wine bar", "tapas", "intimate"]
-  },
-  {
-    "name": "Black Rabbit",
-    "address": "91 Greenpoint Ave, Brooklyn, NY 11222",
-    "lat": 40.7297,
-    "lng": -73.9583,
-    "category": "social",
-    "vibe_tags": ["cocktails", "speakeasy", "cozy"]
-  },
-  {
-    "name": "Welcome to the Johnsons",
-    "address": "123 Rivington St, New York, NY 10002",
-    "lat": 40.721,
-    "lng": -73.9886,
-    "category": "social",
-    "vibe_tags": ["dive bar", "rec room", "retro"]
-  },
-  {
-    "name": "Beauty Bar",
-    "address": "231 E 14th St, New York, NY 10003",
-    "lat": 40.7318,
-    "lng": -73.9847,
-    "category": "social",
-    "vibe_tags": ["retro", "salon", "dance"]
-  },
-  {
-    "name": "The DL",
-    "address": "95 Delancey St, New York, NY 10002",
-    "lat": 40.7185,
-    "lng": -73.9887,
-    "category": "social",
-    "vibe_tags": ["lounge", "rooftop", "cocktails"]
-  },
-  {
-    "name": "Tompkins Square Park",
-    "address": "E 7th St & Avenue A, New York, NY 10009",
-    "lat": 40.7267,
-    "lng": -73.9815,
-    "category": "sport",
-    "vibe_tags": ["park", "outdoor", "basketball"]
-  },
-  {
-    "name": "Seward Park",
-    "address": "Essex St, New York, NY 10002",
-    "lat": 40.7156,
-    "lng": -73.9901,
-    "category": "sport",
-    "vibe_tags": ["basketball", "outdoor", "pickup"]
-  },
-  {
-    "name": "East River Park",
-    "address": "FDR Dr, New York, NY 10002",
-    "lat": 40.715,
-    "lng": -73.975,
-    "category": "sport",
-    "vibe_tags": ["running", "biking", "waterfront"]
-  },
-  {
-    "name": "Brooklyn Boulders",
-    "address": "575 Degraw St, Brooklyn, NY 11217",
-    "lat": 40.679,
-    "lng": -73.9844,
-    "category": "sport",
-    "vibe_tags": ["climbing", "fitness", "community"]
-  },
-  {
-    "name": "Overthrow Boxing Club",
-    "address": "9 Bleecker St, New York, NY 10012",
-    "lat": 40.7254,
-    "lng": -73.9927,
-    "category": "sport",
-    "vibe_tags": ["boxing", "fitness", "training"]
-  },
-  {
-    "name": "Ludlow Street Yoga",
-    "address": "135 Eldridge St, New York, NY 10002",
-    "lat": 40.7199,
-    "lng": -73.9905,
-    "category": "sport",
-    "vibe_tags": ["yoga", "wellness", "classes"]
-  },
-  {
-    "name": "Museum at Eldridge Street",
-    "address": "12 Eldridge St, New York, NY 10002",
-    "lat": 40.7146,
-    "lng": -73.9912,
-    "category": "art",
-    "vibe_tags": ["museum", "historic", "architecture"]
-  },
-  {
-    "name": "New Museum",
-    "address": "235 Bowery, New York, NY 10002",
-    "lat": 40.722,
-    "lng": -73.9925,
-    "category": "art",
-    "vibe_tags": ["contemporary", "exhibitions", "cutting edge"]
-  },
-  {
-    "name": "Participant Inc",
-    "address": "253 E Houston St, New York, NY 10002",
-    "lat": 40.7212,
-    "lng": -73.9866,
-    "category": "art",
-    "vibe_tags": ["gallery", "experimental", "artist-run"]
-  },
-  {
-    "name": "Essex Street Market Art Gallery",
-    "address": "88 Essex St, New York, NY 10002",
-    "lat": 40.7182,
-    "lng": -73.9883,
-    "category": "art",
-    "vibe_tags": ["local art", "emerging", "community"]
-  },
-  {
-    "name": "Clemente Soto Velez Cultural Center",
-    "address": "107 Suffolk St, New York, NY 10002",
-    "lat": 40.7192,
-    "lng": -73.987,
-    "category": "art",
-    "vibe_tags": ["theater", "arts", "community"]
-  },
-  {
-    "name": "La Mama Experimental Theatre",
-    "address": "66 E 4th St, New York, NY 10003",
-    "lat": 40.7251,
-    "lng": -73.9907,
-    "category": "art",
-    "vibe_tags": ["theater", "experimental", "off-broadway"]
+    "vibe_tags": ["iconic", "deli", "late night"],
+    "description": "NYC institution since 1888. Famous for hand-carved pastrami and that iconic sign. Must-try for any visitor or local.",
+    "hours": "Open 24 hours",
+    "rating": 4.5,
+    "phone": "(212) 254-2246",
+    "website": "katzsdelicatessen.com"
   },
   {
     "name": "The Bowery Ballroom",
@@ -293,30 +129,265 @@
     "lat": 40.7184,
     "lng": -73.9936,
     "category": "music",
-    "vibe_tags": ["concerts", "indie", "historic"]
+    "vibe_tags": ["concerts", "indie", "historic"],
+    "description": "Iconic three-floor music venue in a former retail building. Known for pristine sound and booking breakthrough acts.",
+    "hours": "Open until 2am",
+    "rating": 4.8,
+    "phone": "(212) 533-2111",
+    "website": "boweryballroom.com"
   },
   {
-    "name": "Berlin",
-    "address": "25 Ave A, New York, NY 10009",
-    "lat": 40.7246,
-    "lng": -73.985,
+    "name": "Baby's All Right",
+    "address": "146 Broadway, Brooklyn, NY 11249",
+    "lat": 40.7219,
+    "lng": -73.9628,
     "category": "music",
-    "vibe_tags": ["electronic", "dance", "underground"]
+    "vibe_tags": ["indie", "venue", "late night"],
+    "description": "Trendy Williamsburg venue with a stellar sound system, tropical decor, and late-night DJ sets.",
+    "hours": "Open until 4am",
+    "rating": 4.5,
+    "phone": "(347) 227-8052",
+    "website": "babysallright.com"
   },
   {
-    "name": "The Delancey",
-    "address": "168 Delancey St, New York, NY 10002",
-    "lat": 40.7184,
-    "lng": -73.9877,
+    "name": "Elsewhere",
+    "address": "599 Johnson Ave, Brooklyn, NY 11237",
+    "lat": 40.7058,
+    "lng": -73.9256,
     "category": "music",
-    "vibe_tags": ["rooftop", "dj", "cocktails"]
+    "vibe_tags": ["electronic", "experimental", "warehouse"],
+    "description": "Three-floor DIY warehouse venue in Bushwick. Cutting-edge electronic and experimental acts with a rooftop bar.",
+    "hours": "Open until 4am",
+    "rating": 4.6,
+    "website": "elsewherebrooklyn.com"
   },
   {
-    "name": "Alphabet City Beer Co",
-    "address": "96 Ave C, New York, NY 10009",
-    "lat": 40.7249,
-    "lng": -73.9808,
+    "name": "Brooklyn Steel",
+    "address": "320 Forrest St, Brooklyn, NY 11206",
+    "lat": 40.7063,
+    "lng": -73.9403,
+    "category": "music",
+    "vibe_tags": ["concerts", "large venue", "electronic"],
+    "description": "Massive industrial-chic venue from the Bowery Presents team. Major acts and elaborate light shows.",
+    "hours": "Open until 2am",
+    "rating": 4.3,
+    "website": "bowerypresents.com/venues/brooklyn-steel"
+  },
+  {
+    "name": "Petit Comité",
+    "address": "30 Clinton St, New York, NY 10002",
+    "lat": 40.7197,
+    "lng": -73.9898,
+    "category": "food",
+    "vibe_tags": ["spanish", "tapas", "wine bar"],
+    "description": "Intimate Spanish wine bar with small plates and a curated sherry list. Perfect for a late-night date.",
+    "hours": "Open until 11pm",
+    "rating": 4.6,
+    "phone": "(646) 693-4026",
+    "website": "petitcomiteny.com"
+  },
+  {
+    "name": "Russ & Daughters Cafe",
+    "address": "127 Orchard St, New York, NY 10002",
+    "lat": 40.7194,
+    "lng": -73.9894,
+    "category": "food",
+    "vibe_tags": ["jewish", "appetizing", "historic"],
+    "description": "Sit-down extension of the 100-year-old appetizing institution. Smoked fish, bagels, and nostalgia.",
+    "hours": "Open until 10pm",
+    "rating": 4.7,
+    "phone": "(212) 475-4880",
+    "website": "russanddaughters.com"
+  },
+  {
+    "name": "Kola House",
+    "address": "43 Clarkson St, New York, NY 10014",
+    "lat": 40.7273,
+    "lng": -74.0079,
     "category": "social",
-    "vibe_tags": ["craft beer", "pub", "garden"]
+    "vibe_tags": ["cocktails", "gastropub", "west village"],
+    "description": "West Village gastropub with craft cocktails and elevated comfort food. Cozy booths and neighborhood charm.",
+    "hours": "Open until 2am",
+    "rating": 4.2,
+    "phone": "(646) 609-3822"
+  },
+  {
+    "name": "Ace of Clubs",
+    "address": "9 Great Jones St, New York, NY 10012",
+    "lat": 40.7275,
+    "lng": -73.9937,
+    "category": "music",
+    "vibe_tags": ["intimate", "acoustic", "underground"],
+    "description": "Speakeasy-style listening room beneath the House of Yes. Intimate performances and craft cocktails.",
+    "hours": "Open until 2am",
+    "rating": 4.4,
+    "website": "aceofclubs.nyc"
+  },
+  {
+    "name": "Rubin Museum of Art",
+    "address": "150 W 17th St, New York, NY 10011",
+    "lat": 40.7398,
+    "lng": -73.9968,
+    "category": "art",
+    "vibe_tags": ["himalayan", "museum", "meditative"],
+    "description": "Museum dedicated to Himalayan and Indian art. Friday night jazz sessions and a stunning spiral staircase.",
+    "hours": "Open until 10pm Fri",
+    "rating": 4.7,
+    "phone": "(212) 620-5000",
+    "website": "rubinmuseum.org"
+  },
+  {
+    "name": "McCarren Park Track",
+    "address": "McCarren Park, Brooklyn, NY 11222",
+    "lat": 40.7216,
+    "lng": -73.9526,
+    "category": "sport",
+    "vibe_tags": ["running", "track", "outdoor"],
+    "description": "Popular running track in McCarren Park. Open to the public with weekly relay races.",
+    "hours": "Open until dusk",
+    "rating": 4.0
+  },
+  {
+    "name": "Welcome to the Johnsons",
+    "address": "123 Rivington St, New York, NY 10002",
+    "lat": 40.721,
+    "lng": -73.9886,
+    "category": "social",
+    "vibe_tags": ["dive bar", "rec room", "retro"],
+    "description": "Basement dive bar with rec room vibes. Cheap beer, pool table, and vintage decor.",
+    "hours": "Open until 4am",
+    "rating": 4.1,
+    "phone": "(212) 420-9911"
+  },
+  {
+    "name": "Barcade",
+    "address": "148 W 24th St, New York, NY 10011",
+    "lat": 40.7438,
+    "lng": -73.9967,
+    "category": "social",
+    "vibe_tags": ["arcade", "craft beer", "retro"],
+    "description": "Classic arcade bar with vintage games and a curated craft beer selection. Perfect for a nostalgic night out.",
+    "hours": "Open until 2am",
+    "rating": 4.3,
+    "phone": "(212) 675-1138",
+    "website": "barcade.com"
+  },
+  {
+    "name": "La MaMa Experimental Theatre",
+    "address": "74 E 4th St, New York, NY 10003",
+    "lat": 40.7258,
+    "lng": -73.9928,
+    "category": "art",
+    "vibe_tags": ["experimental", "theater", "avant-garde"],
+    "description": "Pioneering off-off-Broadway venue since 1961. Experimental performances and a legacy of artistic innovation.",
+    "hours": "Open until 10pm",
+    "rating": 4.6,
+    "phone": "(212) 475-7710",
+    "website": "lamama.org"
+  },
+  {
+    "name": "Village Vanguard",
+    "address": "178 7th Ave S, New York, NY 10014",
+    "lat": 40.7336,
+    "lng": -74.0027,
+    "category": "music",
+    "vibe_tags": ["jazz", "historic", "legendary"],
+    "description": "Legendary jazz basement since 1935. Intimate setting, world-class musicians, and musical history.",
+    "hours": "Open until 1am",
+    "rating": 4.9,
+    "phone": "(212) 255-4037",
+    "website": "villagevanguard.com"
+  },
+  {
+    "name": "Tompkins Square Park",
+    "address": "E 7th St & Ave A, New York, NY 10009",
+    "lat": 40.7265,
+    "lng": -73.9818,
+    "category": "social",
+    "vibe_tags": ["park", "community", "outdoor"],
+    "description": "Historic East Village park with playgrounds, dog runs, and frequent community events.",
+    "hours": "Open until 10pm",
+    "rating": 4.2
+  },
+  {
+    "name": "Essex Market",
+    "address": "88 Essex St, New York, NY 10002",
+    "lat": 40.7156,
+    "lng": -73.9881,
+    "category": "food",
+    "vibe_tags": ["market", "diverse", "historic"],
+    "description": "Historic indoor food market with dozens of vendors. From Dominican pasteles to artisanal cheese.",
+    "hours": "Open until 8pm",
+    "rating": 4.5,
+    "website": "essexmarket.org"
+  },
+  {
+    "name": "Chocolate Monkey",
+    "address": "86 Essex St, New York, NY 10002",
+    "lat": 40.7157,
+    "lng": -73.9883,
+    "category": "food",
+    "vibe_tags": ["smoothies", "healthy", "juice bar"],
+    "description": "Popular juice bar and smoothie spot inside Essex Market. Fresh ingredients and generous portions.",
+    "hours": "Open until 6pm",
+    "rating": 4.4
+  },
+  {
+    "name": "Dimes",
+    "address": "143 Division St, New York, NY 10002",
+    "lat": 40.7149,
+    "lng": -73.991,
+    "category": "food",
+    "vibe_tags": ["california", "healthy", "trendy"],
+    "description": "Chinatown corner spot for healthy California-inspired fare. Brunch lines are worth it.",
+    "hours": "Open until 10pm",
+    "rating": 4.5,
+    "website": "dimesnyc.com"
+  },
+  {
+    "name": "MoMA PS1",
+    "address": "22-25 Jackson Ave, Queens, NY 11301",
+    "lat": 40.7459,
+    "lng": -73.9462,
+    "category": "art",
+    "vibe_tags": ["contemporary", "museum", "experimental"],
+    "description": "Contemporary art center in a converted school. Summer Warm Up parties are legendary.",
+    "hours": "Open until 6pm",
+    "rating": 4.6,
+    "phone": "(718) 784-2084",
+    "website": "momaps1.org"
+  },
+  {
+    "name": "Vera's Playground",
+    "address": "9 Clinton St, New York, NY 10002",
+    "lat": 40.7196,
+    "lng": -73.9899,
+    "category": "sport",
+    "vibe_tags": ["playground", "family", "outdoor"],
+    "description": "Small neighborhood playground with climbing structures and swings. Great for young families.",
+    "hours": "Open until dusk",
+    "rating": 4.3
+  },
+  {
+    "name": "Left Bank Books",
+    "address": "41 Perry St, New York, NY 10014",
+    "lat": 40.735,
+    "lng": -74.0034,
+    "category": "social",
+    "vibe_tags": ["bookstore", "literary", "cozy"],
+    "description": "Cozy West Village bookstore with curated selection and literary events.",
+    "hours": "Open until 9pm",
+    "rating": 4.8
+  },
+  {
+    "name": "Donny's Place",
+    "address": "165 Ave C, New York, NY 10009",
+    "lat": 40.7271,
+    "lng": -73.9803,
+    "category": "social",
+    "vibe_tags": ["dive bar", "neighborhood", "jukebox"],
+    "description": "Classic East Village dive with a great jukebox and no pretense. Cash only.",
+    "hours": "Open until 4am",
+    "rating": 4.0
   }
 ]

@@ -19,6 +19,11 @@ export interface Database {
           category: string | null
           vibe_tags: string[] | null
           verified: boolean
+          description: string | null
+          hours: string | null
+          phone: string | null
+          website: string | null
+          rating: number | null
           created_at: string
         }
         Insert: {
@@ -30,6 +35,11 @@ export interface Database {
           category?: string | null
           vibe_tags?: string[] | null
           verified?: boolean
+          description?: string | null
+          hours?: string | null
+          phone?: string | null
+          website?: string | null
+          rating?: number | null
           created_at?: string
         }
         Update: {
@@ -41,6 +51,11 @@ export interface Database {
           category?: string | null
           vibe_tags?: string[] | null
           verified?: boolean
+          description?: string | null
+          hours?: string | null
+          phone?: string | null
+          website?: string | null
+          rating?: number | null
           created_at?: string
         }
       }
