@@ -76,6 +76,9 @@ export default function FeedPage() {
   // Venue detail panel state
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
 
+  // Right panel mobile state
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false)
+
   // Handle venue click from EventCard or VenuePanel
   const handleVenueClick = (venueId: string) => {
     setSelectedVenueId(venueId)
@@ -281,6 +284,7 @@ export default function FeedPage() {
       }
       // Always open the chat panel
       setSelectedEvent(event)
+      setIsRightPanelOpen(true)
     }
   }
 
@@ -360,10 +364,10 @@ export default function FeedPage() {
   const laterEvents = rightNowFilter ? [] : applyFilters(allLaterEvents) // Hide later events when "Right now" is active
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+      <main className="flex-1 pb-16 md:pb-0 overflow-y-auto overflow-x-hidden">
         {/* Topbar */}
         <div className="sticky top-0 z-10 bg-[rgba(10,10,11,0.85)] backdrop-blur-xl border-b border-border px-7 py-4 flex items-center gap-4">
           <h1 className="font-display font-bold text-xl tracking-[-0.5px] flex-1">
@@ -497,6 +501,8 @@ export default function FeedPage() {
 
       {/* Right panel */}
       <RightPanel
+        isOpen={isRightPanelOpen}
+        onClose={() => setIsRightPanelOpen(false)}
         chatPanel={
           selectedEvent ? (
             <ChatPanel

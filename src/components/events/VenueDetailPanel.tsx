@@ -163,7 +163,7 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
    if (isLoading) {
       return (
          <div
-            className="fixed inset-0 z-40 flex justify-end"
+            className="fixed inset-0 z-[60] flex justify-end"
             onClick={handleBackdropClick}
          >
             <div className="absolute inset-0 bg-black/50 animate-fade-in" />
@@ -180,7 +180,7 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
    if (error || !venue) {
       return (
          <div
-            className="fixed inset-0 z-40 flex justify-end"
+            className="fixed inset-0 z-[60] flex justify-end"
             onClick={handleBackdropClick}
          >
             <div className="absolute inset-0 bg-black/50 animate-fade-in" />
@@ -201,7 +201,7 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
 
    return (
       <div
-         className="fixed inset-0 z-40 flex justify-end"
+         className="fixed inset-0 z-[60] flex justify-end"
          onClick={handleBackdropClick}
       >
          {/* Backdrop */}

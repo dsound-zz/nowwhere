@@ -142,12 +142,12 @@ export default function ChatsPage() {
    }
 
    return (
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden">
          <Sidebar />
 
-         <main className="flex-1 flex overflow-hidden">
+         <main className="flex-1 flex overflow-hidden pb-16 md:pb-0">
             {/* Chat list */}
-            <div className="w-full lg:w-[400px] border-r border-border flex flex-col overflow-hidden">
+            <div className={`w-full lg:w-[400px] border-r border-border flex flex-col overflow-hidden ${selectedChat ? 'hidden lg:flex' : 'flex'}`}>
                {/* Header */}
                <div className="border-b border-border px-6 py-4">
                   <h1 className="font-display font-bold text-xl tracking-[-0.5px]">
@@ -234,9 +234,19 @@ export default function ChatsPage() {
             </div>
 
             {/* Chat panel */}
-            <div className="flex-1 hidden lg:flex flex-col">
+            <div className={`flex-1 flex-col ${selectedChat ? 'flex fixed inset-0 z-50 bg-surface' : 'hidden lg:flex'} lg:relative lg:z-auto lg:flex`}>
                {selectedChat ? (
                   <div className="flex-1 flex flex-col overflow-hidden p-4">
+                     <button 
+                        onClick={() => setSelectedChat(null)}
+                        className="lg:hidden mb-4 flex items-center gap-2 text-sm font-semibold text-muted hover:text-text cursor-pointer"
+                     >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-current fill-none strokeWidth-2 strokeLinecap-round strokeLinejoin-round">
+                           <line x1="19" y1="12" x2="5" y2="12" />
+                           <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back to chats
+                     </button>
                      <ChatPanel
                         eventId={selectedChat.event_id}
                         eventName={selectedChat.event_title}
@@ -246,7 +256,7 @@ export default function ChatsPage() {
                      />
                   </div>
                ) : (
-                  <div className="flex items-center justify-center h-full text-muted text-sm">
+                  <div className="flex items-center justify-center h-full text-muted text-sm hidden lg:flex">
                      Select a chat to start messaging
                   </div>
                )}

@@ -63,36 +63,38 @@ export function Sidebar() {
 
    return (
       <>
-         <aside className="w-[68px] bg-surface border-r border-border flex flex-col items-center py-5 gap-1.5 shrink-0">
-            <div className="font-display font-extrabold text-lg text-teal tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
+         <aside className="fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-border flex flex-row items-center justify-around z-50 px-2 md:relative md:w-[68px] md:h-screen md:bg-surface md:border-t-0 md:border-r md:border-border md:flex-col md:py-5 md:gap-1.5 md:shrink-0 lg:flex-col lg:w-[68px]">
+            <div className="hidden md:block font-display font-extrabold text-lg text-teal tracking-[-1px] mb-6 [writing-mode:vertical-lr] rotate-180">
                NW
             </div>
 
-            {navItems.map((item) => (
-               <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-150 ${pathname === item.href
-                     ? 'bg-teal-dim text-teal'
-                     : 'text-muted hover:bg-surface2 hover:text-text'
-                     }`}
-                  title={item.label}
-               >
-                  {icons[item.icon]}
-               </Link>
-            ))}
+            <div className="flex flex-row md:flex-col items-center gap-1 md:gap-1.5 flex-1 justify-around md:justify-start md:flex-none">
+               {navItems.map((item) => (
+                  <Link
+                     key={item.href}
+                     href={item.href}
+                     className={`w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-150 ${pathname === item.href
+                        ? 'bg-teal-dim text-teal'
+                        : 'text-muted hover:bg-surface2 hover:text-text'
+                        }`}
+                     title={item.label}
+                  >
+                     {icons[item.icon]}
+                  </Link>
+               ))}
+            </div>
 
-            <div className="mt-auto flex flex-col items-center gap-1.5">
+            <div className="flex flex-row md:flex-col md:mt-auto items-center gap-1 md:gap-1.5 pl-2 border-l border-border md:pl-0 md:border-l-0">
                <Link
                   href="/settings"
-                  className="w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer text-muted hover:bg-surface2 hover:text-text transition-all duration-150"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center cursor-pointer text-muted hover:bg-surface2 hover:text-text transition-all duration-150 hidden sm:flex"
                   title="Settings"
                >
                   {icons.settings}
                </Link>
                <button
                   onClick={() => !user && setShowAuthModal(true)}
-                  className="w-9 h-9 rounded-full bg-gradient-to-br from-teal to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer mt-2 transition-transform hover:scale-105"
+                  className="w-9 h-9 rounded-full bg-gradient-to-br from-teal to-blue flex items-center justify-center font-display font-bold text-[13px] text-white cursor-pointer md:mt-2 transition-transform hover:scale-105 mx-2 md:mx-0"
                   title={user ? user.email || 'Account' : 'Sign in'}
                >
                   {user ? getInitials(user.email || '?') : '?'}
