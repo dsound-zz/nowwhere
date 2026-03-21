@@ -2,6 +2,37 @@
 
 ## Recent Changes
 
+### March 21, 2026 - Venue Detail Panel Map & Event Filters Fix
+
+**Problem Solved:**
+
+1. Clicking on a venue opened the detail panel, but the mini map didn't render and clicking it didn't navigate to the full map
+2. Event category filters (art, music, food, etc.) were failing with database errors
+
+**Root Causes:**
+
+1. **Missing `get_venue_by_id` function** - Migration file existed but was never applied to Supabase. Without this function, venue coordinates couldn't be extracted from PostGIS geometry, resulting in `lat: null, lng: null`.
+
+2. **Function overloading ambiguity** - Two versions of `get_nearby_events` existed (5-param and 7-param), causing PostgreSQL to fail when choosing which to execute.
+
+**Fixes Applied:**
+
+1. **New migrations created and applied:**
+   - [`supabase/migrations/20260321130000_fix_venue_functions.sql`](supabase/migrations/20260321130000_fix_venue_functions.sql) — Added `get_venue_by_id` and `get_venue_coords_by_id` functions
+   - [`supabase/migrations/20260321140000_fix_nearby_events_overload.sql`](supabase/migrations/20260321140000_fix_nearby_events_overload.sql) — Dropped old 5-param `get_nearby_events` to resolve ambiguity
+
+2. **Files modified:**
+   - [`src/components/events/VenueDetailPanel.tsx`](src/components/events/VenueDetailPanel.tsx) — Added `pointerEvents: 'none'` to map container and `z-10` to overlay for proper click propagation
+   - [`src/app/api/venues/[id]/route.ts`](src/app/api/venues/[id]/route.ts) — Added fallback RPC call for coordinate extraction
+   - [`supabase/migrations/20260320220000_add_event_filters.sql`](supabase/migrations/20260320220000_add_event_filters.sql) — Fixed COMMENT statement to use full function signature
+
+**Key Learnings:**
+
+- PostGIS geometry columns require special functions (`ST_X`, `ST_Y`) to extract lat/lng coordinates
+- PostgreSQL function overloading can cause ambiguity errors when Supabase RPC can't determine which version to use
+- Mapbox canvas intercepts pointer events - use `pointerEvents: 'none'` on the canvas container to allow clicks to propagate to overlays
+- Always verify migrations are applied to the remote database after creating them
+
 ### March 20, 2026 - Event Join Flow Redesign ("I'm Going" in Chat)
 
 **What Changed:** Moved the "I'm going" button from event cards into the chat panel, allowing users to browse and participate in chats before committing to attend.
