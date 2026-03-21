@@ -91,7 +91,7 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
          style: 'mapbox://styles/mapbox/dark-v11',
          center: [venue.lng, venue.lat],
          zoom: 15,
-         interactive: true, // Allow interaction
+         interactive: true,
          attributionControl: false,
       })
 
@@ -236,14 +236,15 @@ export function VenueDetailPanel({ venueId, onClose }: VenueDetailPanelProps) {
                <div
                   className="h-[180px] relative cursor-pointer group"
                   onClick={handleMapClick}
+                  data-testid="mini-map-container"
                >
                   <div
                      ref={mapContainerRef}
                      className="w-full h-full"
-                     style={{ width: '100%', height: '100%' }}
+                     style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
                   />
-                  {/* Click overlay hint */}
-                  <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 transition-colors flex items-center justify-center">
+                  {/* Click overlay hint - positioned above map to capture clicks */}
+                  <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 transition-colors flex items-center justify-center z-10">
                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
                         <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current fill-none strokeWidth-2">
                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />

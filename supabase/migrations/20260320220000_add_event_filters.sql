@@ -72,5 +72,5 @@ create index if not exists events_price_idx on events(price) where status = 'liv
 -- Create composite index for common filter combinations
 create index if not exists events_live_time_idx on events(starts_at, ends_at) where status = 'live';
 
--- Comment describing the function
-comment on function get_nearby_events is 'Returns nearby live events with optional filters for category, free-only, and currently happening events. Uses PostGIS for geospatial queries.';
+-- Comment describing the function (specify full signature to avoid ambiguity)
+comment on function get_nearby_events(float, float, float, text, int, boolean, boolean) is 'Returns nearby live events with optional filters for category, free-only, and currently happening events. Uses PostGIS for geospatial queries.';
