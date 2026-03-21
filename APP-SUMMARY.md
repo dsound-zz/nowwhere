@@ -12,18 +12,18 @@ NowHere is a frictionless local events discovery app that shows users what's hap
 
 ### ✅ Implemented
 
-| Requirement                              | Status      | Implementation                                                                                   |
-| ---------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------ |
-| **FR-1: Location-Based Event Discovery** | ✅ Complete | Users can view events within a configurable radius (default 1600m) using PostGIS spatial queries |
-| **FR-2: Category Filtering**             | ✅ Complete | Events filterable by: music, food, art, sport, social, or all                                    |
-| **FR-3: Time-Based Organization**        | ✅ Complete | Feed splits events into "Nearby now" (≤2 hours) and "Later tonight" (>2 hours)                   |
-| **FR-4: Anonymous Browsing**             | ✅ Complete | No account required to view events feed or map                                                   |
-| **FR-5: Minimal Join Flow**              | ✅ Complete | Join events with first name + last initial only (e.g., "Jamie K.")                               |
-| **FR-6: Event-Based Chat**               | ✅ Complete | Real-time chat via Supabase Realtime for joined events                                           |
-| **FR-7: Map View**                       | ✅ Complete | Mapbox GL JS map showing event markers with category colors                                      |
-| **FR-8: Venue Email Pipeline**           | ✅ Complete | Venues email events → AI parsing → approval queue → published                                    |
-| **FR-9: Event Expiry**                   | ✅ Complete | Cron job expires events 2 hours after end time, cascades to messages/attendees                   |
-| **FR-10: Distance Display**              | ✅ Complete | Events show distance in feet (<160m) or miles (≥160m)                                            |
+| Requirement                              | Status      | Implementation                                                                                                            |
+| ---------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **FR-1: Location-Based Event Discovery** | ✅ Complete | Users can view events within a configurable radius (default 1600m) using PostGIS spatial queries                          |
+| **FR-2: Category Filtering**             | ✅ Complete | Events filterable by: music, food, art, sport, social, or all                                                             |
+| **FR-3: Time-Based Organization**        | ✅ Complete | Feed splits events into "Nearby now" (≤2 hours) and "Later tonight" (>2 hours)                                            |
+| **FR-4: Anonymous Browsing**             | ✅ Complete | No account required to view events feed or map                                                                            |
+| **FR-5: Minimal Join Flow**              | ✅ Complete | Chat opens on event click; "I'm going! 🎉" button in chat joins + sends message; first name + last initial for anon users |
+| **FR-6: Event-Based Chat**               | ✅ Complete | Real-time chat via Supabase Realtime for joined events                                                                    |
+| **FR-7: Map View**                       | ✅ Complete | Mapbox GL JS map showing event markers with category colors                                                               |
+| **FR-8: Venue Email Pipeline**           | ✅ Complete | Venues email events → AI parsing → approval queue → published                                                             |
+| **FR-9: Event Expiry**                   | ✅ Complete | Cron job expires events 2 hours after end time, cascades to messages/attendees                                            |
+| **FR-10: Distance Display**              | ✅ Complete | Events show distance in feet (<160m) or miles (≥160m)                                                                     |
 
 ### ⚠️ Partially Implemented
 

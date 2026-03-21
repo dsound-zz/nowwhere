@@ -116,13 +116,20 @@
 
 #### FR-5: Minimal Join Flow
 
-**Status:** ✅ Complete  
+**Status:** ✅ Complete
 **Implementation:**
 
-- Join modal requires only "First L." format (e.g., "Jamie K.")
+- Join triggered from ChatPanel's "I'm going! 🎉" button (below message input)
+- Users can browse and send messages before committing to attend
+- When user sends message without having joined:
+  - Automatically joins event (creates `attendees` record)
+  - Sends "I'm going! 🎉" system message
+  - Then sends user's typed message
+- Join modal requires only "First L." format (e.g., "Jamie K.") for anonymous users
 - Regex validation: `/^[A-Z][a-z]+ [A-Z]\.$/`
-- Creates attendee record with optional `user_id` for authenticated users
-- Unique constraint prevents duplicate joins
+- Creates attendee record with `user_id` for authenticated users or anonymous users (via Supabase signInAnonymously)
+- Unique constraint `(event_id, user_id)` prevents duplicate joins
+- **Requires:** Anonymous Auth enabled in Supabase Dashboard → Authentication → Providers
 
 #### FR-6: Event-Based Chat
 

@@ -93,8 +93,20 @@ export default function AdminVenuesPage() {
    useEffect(() => {
       if (!authLoading && !user) {
          router.push('/')
+         return
       }
-   }, [user, authLoading, router])
+
+      // Check if user is admin
+      if (user) {
+         const checkAdmin = async () => {
+            const { data: isAdmin } = await supabase.rpc('is_admin_user')
+            if (!isAdmin) {
+               router.push('/')
+            }
+         }
+         checkAdmin()
+      }
+   }, [user, authLoading, router, supabase])
 
    // Fetch venues
    useEffect(() => {
@@ -331,8 +343,8 @@ export default function AdminVenuesPage() {
                                  key={venue.id}
                                  onClick={() => setSelectedVenue(venue)}
                                  className={`w-full text-left bg-surface2 border rounded-lg p-3 transition-colors ${selectedVenue?.id === venue.id
-                                       ? 'border-teal bg-teal/10'
-                                       : 'border-border hover:border-border2'
+                                    ? 'border-teal bg-teal/10'
+                                    : 'border-border hover:border-border2'
                                     }`}
                               >
                                  <div className="font-medium text-sm flex items-center gap-2">
@@ -409,7 +421,7 @@ export default function AdminVenuesPage() {
                                           {new Date(event.starts_at).toLocaleDateString()} · {event.price_label}
                                        </div>
                                        <div className={`text-xs mt-1 ${event.status === 'live' ? 'text-green' :
-                                             event.status === 'pending' ? 'text-amber' : 'text-muted'
+                                          event.status === 'pending' ? 'text-amber' : 'text-muted'
                                           }`}>
                                           {event.status}
                                        </div>

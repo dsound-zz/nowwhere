@@ -248,11 +248,14 @@ export default function FeedPage() {
           [joiningEventId]: { attendeeId: data.attendee_id, displayName: name }
         }))
 
-        // Set selected event for chat
-        const event = events.find((e) => e.id === joiningEventId)
-        if (event) {
-          setSelectedEvent(event)
-        }
+        // Send "I'm going!" message
+        const supabase = (await import('@/lib/supabase/client')).createClient()
+        await supabase.from('messages').insert({
+          event_id: joiningEventId,
+          attendee_id: data.attendee_id,
+          display_name: name,
+          body: "I'm going! 🎉",
+        })
       }
     } catch (err) {
       console.error('Failed to join event:', err)
@@ -268,15 +271,51 @@ export default function FeedPage() {
       // Check if already joined
       const joinedInfo = joinedEvents[eventId]
       if (joinedInfo) {
-        // Already joined - open chat directly
+        // Already joined - set attendee info for chat
         setAttendeeId(joinedInfo.attendeeId)
         setDisplayName(joinedInfo.displayName)
-        setSelectedEvent(event)
       } else {
-        // Not joined yet - attempt to join
-        handleJoin(eventId)
+        // Not joined yet - reset attendee info (ChatPanel will show join button)
+        setAttendeeId(null)
+        setDisplayName('')
       }
+      // Always open the chat panel
+      setSelectedEvent(event)
     }
+  }
+
+  // Handle join from ChatPanel
+  const handleJoinFromChat = async (eventId: string): Promise<{ attendeeId: string; displayName: string } | null> => {
+    if (user) {
+      // Authenticated user - join directly
+      try {
+        const response = await fetch(`/api/events/${eventId}/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName: null }),
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          const name = user.email?.split('@')[0] || 'You'
+          setAttendeeId(data.attendee_id)
+          setDisplayName(name)
+          setJoinedEvents(prev => ({
+            ...prev,
+            [eventId]: { attendeeId: data.attendee_id, displayName: name }
+          }))
+          return { attendeeId: data.attendee_id, displayName: name }
+        }
+      } catch (err) {
+        console.error('Failed to join event:', err)
+      }
+    } else {
+      // Anonymous user - show modal
+      setJoiningEventId(eventId)
+      setShowJoinModal(true)
+    }
+    return null
   }
 
   // Apply filters to events
@@ -393,7 +432,6 @@ export default function FeedPage() {
               <EventCard
                 event={nowEvents[0]}
                 isHero
-                onJoin={handleJoin}
                 onClick={handleEventClick}
                 onVenueClick={handleVenueClick}
               />
@@ -413,7 +451,6 @@ export default function FeedPage() {
                     <EventCard
                       key={event.id}
                       event={event}
-                      onJoin={handleJoin}
                       onClick={handleEventClick}
                       onVenueClick={handleVenueClick}
                     />
@@ -436,7 +473,6 @@ export default function FeedPage() {
                     <EventCard
                       key={event.id}
                       event={event}
-                      onJoin={handleJoin}
                       onClick={handleEventClick}
                       onVenueClick={handleVenueClick}
                     />
@@ -462,17 +498,18 @@ export default function FeedPage() {
       {/* Right panel */}
       <RightPanel
         chatPanel={
-          selectedEvent && attendeeId ? (
+          selectedEvent ? (
             <ChatPanel
               eventId={selectedEvent.id}
               eventName={selectedEvent.title}
               eventEmoji={selectedEvent.emoji}
               attendeeId={attendeeId}
               displayName={displayName}
+              onJoin={handleJoinFromChat}
             />
           ) : (
             <div className="text-center text-muted text-sm py-8">
-              Join an event to start chatting
+              Select an event to view chat
             </div>
           )
         }

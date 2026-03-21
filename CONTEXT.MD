@@ -2,6 +2,55 @@
 
 ## Recent Changes
 
+### March 20, 2026 - Event Join Flow Redesign ("I'm Going" in Chat)
+
+**What Changed:** Moved the "I'm going" button from event cards into the chat panel, allowing users to browse and participate in chats before committing to attend.
+
+**Previous Flow:**
+
+- User clicks event card → "I'm going" button shown (or triggers join modal for anonymous users)
+- Must join event before viewing chat
+- Chat only accessible after commitment
+
+**New Flow:**
+
+- User clicks event card → Chat opens immediately (read/write)
+- "I'm going! 🎉" button shown below message input for non-joined users
+- Typing a message and pressing send automatically joins + sends "I'm going! 🎉" + user's message
+- Lower friction: users can explore conversations before deciding
+
+**Files Modified:**
+
+- [`src/components/events/EventCard.tsx`](src/components/events/EventCard.tsx)
+  - Removed `onJoin` prop and "I'm going →" button from hero variant
+  - Changed text to "going · tap to chat"
+  - Card clicks now always open chat panel
+
+- [`src/components/chat/ChatPanel.tsx`](src/components/chat/ChatPanel.tsx)
+  - Made `attendeeId` and `displayName` optional (can be `null`)
+  - Added `onJoin` callback prop for join-from-chat functionality
+  - Message input always visible (for joined and non-joined users)
+  - "I'm going! 🎉" button appears below input for non-joined users
+  - `handleJoinAndSend()` joins + sends "I'm going! 🎉" + user's message
+
+- [`src/app/page.tsx`](src/app/page.tsx)
+  - `handleEventClick` opens chat directly without join prompt
+  - Added `handleJoinFromChat` callback for ChatPanel
+  - `confirmJoin` now sends "I'm going! 🎉" message after joining
+  - Removed `onJoin` prop from EventCard usages
+
+- [`src/app/map/page.tsx`](src/app/map/page.tsx)
+  - Removed floating "Join" button overlay
+  - Renamed `handleJoin` to `handleJoinFromChat` with return value
+  - ChatPanel handles join button internally
+
+**Key Learnings:**
+
+- Users want to "try before they buy" - let them chat before committing
+- Chat input always visible creates a more inviting experience
+- Anonymous auth must be enabled in Supabase Dashboard for anonymous users to join
+- User-event relationship stored in `attendees` table: `(event_id, user_id, display_name)`
+
 ### March 20, 2026 - Venue Management & Ownership System
 
 **What Changed:** Added complete venue management system with admin UI, Foursquare integration, and venue ownership claims.

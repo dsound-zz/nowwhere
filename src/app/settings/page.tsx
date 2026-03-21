@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { useAuth } from '@/components/providers/SupabaseProvider'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { Emoji } from '@/components/ui/Emoji'
+import { createClient } from '@/lib/supabase/client'
 
 const RADIUS_OPTIONS = [
    { value: 800, label: '0.5 miles (800m)' },
@@ -14,9 +16,23 @@ const RADIUS_OPTIONS = [
 
 export default function SettingsPage() {
    const { user, signOut } = useAuth()
+   const router = useRouter()
+   const supabase = createClient()
    const [showAuthModal, setShowAuthModal] = useState(false)
    const [defaultRadius, setDefaultRadius] = useState(1600)
    const [isSaving, setIsSaving] = useState(false)
+   const [isAdmin, setIsAdmin] = useState(false)
+
+   // Check admin status
+   useEffect(() => {
+      if (user) {
+         const checkAdmin = async () => {
+            const { data } = await supabase.rpc('is_admin_user')
+            setIsAdmin(!!data)
+         }
+         checkAdmin()
+      }
+   }, [user, supabase])
 
    // Load preferences from localStorage
    useEffect(() => {
@@ -117,6 +133,30 @@ export default function SettingsPage() {
                               </div>
                            </div>
                         </div>
+
+                        {/* Admin Section - Only visible for admins */}
+                        {isAdmin && (
+                           <div className="bg-surface border border-indigo/30 rounded-[--radius] p-6">
+                              <h2 className="font-display font-bold text-lg mb-4 flex items-center gap-2">
+                                 <span className="text-indigo">⚡</span>
+                                 Admin
+                              </h2>
+
+                              <div className="space-y-4">
+                                 <div className="bg-indigo-dim/50 border border-indigo/20 rounded-lg p-4">
+                                    <p className="text-xs text-muted mb-3">
+                                       Manage venues, events, and email queue
+                                    </p>
+                                    <button
+                                       onClick={() => router.push('/admin/venues')}
+                                       className="w-full py-2.5 rounded-full bg-indigo text-white font-semibold transition-opacity hover:opacity-90"
+                                    >
+                                       Open Admin Dashboard
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        )}
 
                         {/* Preferences Section */}
                         <div className="bg-surface border border-border rounded-[--radius] p-6">

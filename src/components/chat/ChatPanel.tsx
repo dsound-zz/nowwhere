@@ -18,8 +18,9 @@ interface ChatPanelProps {
    eventId: string
    eventName: string
    eventEmoji: string
-   attendeeId: string
-   displayName: string
+   attendeeId: string | null
+   displayName: string | null
+   onJoin?: (eventId: string) => Promise<{ attendeeId: string; displayName: string } | null>
 }
 
 const avatarGradients = [
@@ -44,10 +45,13 @@ function getGradientForName(name: string | null): string {
    return avatarGradients[hash % avatarGradients.length]
 }
 
-export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayName }: ChatPanelProps) {
+export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayName, onJoin }: ChatPanelProps) {
    const [messages, setMessages] = useState<Message[]>([])
    const [newMessage, setNewMessage] = useState('')
    const [isLoading, setIsLoading] = useState(true)
+   const [isJoining, setIsJoining] = useState(false)
+   const [currentAttendeeId, setCurrentAttendeeId] = useState(attendeeId)
+   const [currentDisplayName, setCurrentDisplayName] = useState(displayName)
    const messagesEndRef = useRef<HTMLDivElement>(null)
    const channelRef = useRef<RealtimeChannel | null>(null)
    const supabase = createClient()
@@ -100,18 +104,92 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
    }, [messages])
 
-   const sendMessage = async () => {
-      if (!newMessage.trim()) return
+   // Sync attendeeId and displayName from props
+   useEffect(() => {
+      setCurrentAttendeeId(attendeeId)
+      setCurrentDisplayName(displayName)
+   }, [attendeeId, displayName])
+
+   const sendMessage = async (messageText?: string) => {
+      const textToSend = messageText || newMessage.trim()
+      if (!textToSend || !currentAttendeeId) return
 
       const { error } = await supabase.from('messages').insert({
          event_id: eventId,
-         attendee_id: attendeeId,
-         display_name: displayName,
-         body: newMessage.trim(),
+         attendee_id: currentAttendeeId,
+         display_name: currentDisplayName,
+         body: textToSend,
       })
 
       if (!error) {
          setNewMessage('')
+      }
+   }
+
+   const handleJoin = async () => {
+      if (!onJoin || isJoining) return
+
+      setIsJoining(true)
+      try {
+         const result = await onJoin(eventId)
+         if (result) {
+            setCurrentAttendeeId(result.attendeeId)
+            setCurrentDisplayName(result.displayName)
+
+            // Wait for attendee to be set, then send the "I'm going!" message
+            const { error } = await supabase.from('messages').insert({
+               event_id: eventId,
+               attendee_id: result.attendeeId,
+               display_name: result.displayName,
+               body: "I'm going! 🎉",
+            })
+
+            if (error) {
+               console.error('Failed to send join message:', error)
+            }
+         }
+      } catch (err) {
+         console.error('Failed to join event:', err)
+      } finally {
+         setIsJoining(false)
+      }
+   }
+
+   const handleJoinAndSend = async () => {
+      if (!onJoin || isJoining || !newMessage.trim()) return
+
+      const messageToSend = newMessage.trim()
+      setIsJoining(true)
+      try {
+         const result = await onJoin(eventId)
+         if (result) {
+            setCurrentAttendeeId(result.attendeeId)
+            setCurrentDisplayName(result.displayName)
+
+            // Send "I'm going!" message first
+            await supabase.from('messages').insert({
+               event_id: eventId,
+               attendee_id: result.attendeeId,
+               display_name: result.displayName,
+               body: "I'm going! 🎉",
+            })
+
+            // Then send the user's message
+            const { error } = await supabase.from('messages').insert({
+               event_id: eventId,
+               attendee_id: result.attendeeId,
+               display_name: result.displayName,
+               body: messageToSend,
+            })
+
+            if (!error) {
+               setNewMessage('')
+            }
+         }
+      } catch (err) {
+         console.error('Failed to join event:', err)
+      } finally {
+         setIsJoining(false)
       }
    }
 
@@ -121,6 +199,8 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
          sendMessage()
       }
    }
+
+   const isJoined = !!currentAttendeeId
 
    return (
       <>
@@ -141,7 +221,7 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
                </div>
             ) : (
                messages.map((msg) => {
-                  const isMe = msg.attendee_id === attendeeId
+                  const isMe = msg.attendee_id === currentAttendeeId
                   return (
                      <div key={msg.id} className="mb-2.5">
                         {!isMe && (
@@ -172,18 +252,35 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
             <div ref={messagesEndRef} />
          </div>
 
+         {/* Message input - always visible */}
          <div className="p-3 border-t border-border flex gap-2 items-center">
             <input
                type="text"
                className="flex-1 bg-surface2 border border-border rounded-full px-3.5 py-2 font-body text-[13px] text-text outline-none transition-colors focus:border-teal placeholder:text-muted"
-               placeholder="Message the group..."
+               placeholder={isJoined ? "Message the group..." : "Type a message..."}
                value={newMessage}
                onChange={(e) => setNewMessage(e.target.value)}
-               onKeyDown={handleKeyDown}
+               onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                     e.preventDefault()
+                     if (isJoined) {
+                        sendMessage()
+                     } else if (newMessage.trim()) {
+                        handleJoinAndSend()
+                     }
+                  }
+               }}
+               disabled={!isJoined && !onJoin}
             />
             <button
-               onClick={sendMessage}
-               disabled={!newMessage.trim()}
+               onClick={() => {
+                  if (isJoined) {
+                     sendMessage()
+                  } else if (newMessage.trim()) {
+                     handleJoinAndSend()
+                  }
+               }}
+               disabled={!newMessage.trim() || isJoining || (!isJoined && !onJoin)}
                className="w-[34px] h-[34px] rounded-full bg-teal border-none cursor-pointer flex items-center justify-center transition-opacity hover:opacity-85 disabled:opacity-50 shrink-0"
             >
                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none strokeWidth-[2.5] strokeLinecap-round strokeLinejoin-round">
@@ -192,6 +289,19 @@ export function ChatPanel({ eventId, eventName, eventEmoji, attendeeId, displayN
                </svg>
             </button>
          </div>
+
+         {/* I'm going button - only for non-joined users */}
+         {!isJoined && (
+            <div className="px-3 pb-3">
+               <button
+                  onClick={handleJoin}
+                  disabled={isJoining}
+                  className="w-full bg-surface2 text-teal border border-teal rounded-full px-6 py-2.5 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:bg-teal hover:text-white disabled:opacity-50"
+               >
+                  {isJoining ? 'Joining...' : "I'm going! 🎉"}
+               </button>
+            </div>
+         )}
       </>
    )
 }

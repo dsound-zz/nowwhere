@@ -200,7 +200,7 @@ export default function MapPage() {
       })
    }, [events])
 
-   const handleJoin = async (eventId: string) => {
+   const handleJoinFromChat = async (eventId: string): Promise<{ attendeeId: string; displayName: string } | null> => {
       try {
          const response = await fetch(`/api/events/${eventId}/join`, {
             method: 'POST',
@@ -211,10 +211,12 @@ export default function MapPage() {
          const data = await response.json()
          if (response.ok) {
             setAttendeeId(data.attendee_id)
+            return { attendeeId: data.attendee_id, displayName: 'You' }
          }
       } catch (err) {
          console.error('Failed to join event:', err)
       }
+      return null
    }
 
    const handleVenueClick = async (venueId: string) => {
@@ -292,48 +294,27 @@ export default function MapPage() {
                </div>
             </div>
 
-            {/* Selected event overlay */}
-            {selectedEvent && !attendeeId && (
-               <div className="absolute bottom-4 left-4 right-4 z-10 lg:left-auto lg:right-[320px] lg:max-w-sm pointer-events-none">
-                  <div className="bg-surface border border-border rounded-[--radius] p-4 pointer-events-auto">
-                     <div className="flex items-start gap-3">
-                        <div className="text-3xl">{selectedEvent.emoji}</div>
-                        <div className="flex-1">
-                           <h3 className="font-display font-semibold">{selectedEvent.title}</h3>
-                           <p className="text-xs text-muted mt-1">
-                              {selectedEvent.address || 'Nearby'} · {selectedEvent.attendee_count} going
-                           </p>
-                        </div>
-                        <button
-                           onClick={() => handleJoin(selectedEvent.id)}
-                           className="bg-teal text-white rounded-full px-4 py-2 text-sm font-semibold"
-                        >
-                           Join
-                        </button>
-                     </div>
-                  </div>
-               </div>
-            )}
          </main>
 
          <RightPanel
             chatPanel={
-               selectedEvent && attendeeId ? (
+               selectedEvent ? (
                   <ChatPanel
                      eventId={selectedEvent.id}
                      eventName={selectedEvent.title}
                      eventEmoji={selectedEvent.emoji}
                      attendeeId={attendeeId}
                      displayName={displayName}
+                     onJoin={handleJoinFromChat}
                   />
                ) : (
                   <div className="text-center text-muted text-sm py-8">
-                     Click an event marker to view details
+                     Click an event marker to view chat
                   </div>
                )
             }
             venuePanel={<VenuePanel onVenueClick={handleVenueClick} />}
-          />
+         />
 
          {/* Venue Detail Panel */}
          {selectedVenueId && (

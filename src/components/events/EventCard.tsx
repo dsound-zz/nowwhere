@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Emoji } from '@/components/ui/Emoji'
 
 interface EventCardProps {
@@ -21,7 +20,6 @@ interface EventCardProps {
       venue_name?: string | null
    }
    isHero?: boolean
-   onJoin?: (eventId: string) => void
    onClick?: (eventId: string) => void
    onVenueClick?: (venueId: string) => void
 }
@@ -64,18 +62,7 @@ function getAvatarInitials(name: string): string {
    return name.substring(0, 2).toUpperCase()
 }
 
-export function EventCard({ event, isHero = false, onJoin, onClick, onVenueClick }: EventCardProps) {
-   const [isJoining, setIsJoining] = useState(false)
-
-   const handleJoin = async (e: React.MouseEvent) => {
-      e.stopPropagation()
-      if (onJoin && !isJoining) {
-         setIsJoining(true)
-         await onJoin(event.id)
-         setIsJoining(false)
-      }
-   }
-
+export function EventCard({ event, isHero = false, onClick, onVenueClick }: EventCardProps) {
    const handleVenueClick = (e: React.MouseEvent) => {
       e.stopPropagation()
       if (event.venue_id && onVenueClick) {
@@ -107,29 +94,20 @@ export function EventCard({ event, isHero = false, onJoin, onClick, onVenueClick
                   <span className="flex items-center gap-1"><Emoji emoji="🕗" size={12} /> {formatTime(event.starts_at)}</span>
                   <span className="flex items-center gap-1"><Emoji emoji="🎟" size={12} /> {event.price_label}</span>
                </div>
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                     <div className="flex -space-x-2">
-                        {Array.from({ length: Math.min(4, event.attendee_count) }).map((_, i) => (
-                           <div
-                              key={i}
-                              className={`w-[26px] h-[26px] rounded-full border-2 border-surface flex items-center justify-center text-[9px] font-semibold bg-gradient-to-br ${avatarGradients[i % avatarGradients.length]} text-white`}
-                           >
-                              {i === 3 && event.attendee_count > 4 ? `+${event.attendee_count - 3}` : getAvatarInitials(String(i))}
-                           </div>
-                        ))}
-                     </div>
-                     <span className="text-xs text-muted ml-2.5">
-                        {event.attendee_count} going · chat open
-                     </span>
+               <div className="flex items-center">
+                  <div className="flex -space-x-2">
+                     {Array.from({ length: Math.min(4, event.attendee_count) }).map((_, i) => (
+                        <div
+                           key={i}
+                           className={`w-[26px] h-[26px] rounded-full border-2 border-surface flex items-center justify-center text-[9px] font-semibold bg-gradient-to-br ${avatarGradients[i % avatarGradients.length]} text-white`}
+                        >
+                           {i === 3 && event.attendee_count > 4 ? `+${event.attendee_count - 3}` : getAvatarInitials(String(i))}
+                        </div>
+                     ))}
                   </div>
-                  <button
-                     onClick={handleJoin}
-                     disabled={isJoining}
-                     className="bg-teal text-white border-none rounded-full px-6 py-2 text-[13px] font-semibold font-display cursor-pointer transition-all duration-150 hover:opacity-88 hover:scale-[1.03] disabled:opacity-50"
-                  >
-                     {isJoining ? 'Joining...' : "I'm going →"}
-                  </button>
+                  <span className="text-xs text-muted ml-2.5">
+                     {event.attendee_count} going · tap to chat
+                  </span>
                </div>
             </div>
          </div>

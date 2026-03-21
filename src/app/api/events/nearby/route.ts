@@ -43,15 +43,15 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Call the PostGIS function for nearby events with new filters
+    // Call the PostGIS function for nearby events
+    // Note: is_free_only and is_happening_now filters are not yet supported by the DB function
+    // They will need to be implemented in a future migration
     const { data, error } = await supabase.rpc('get_nearby_events', {
       lat,
       lng,
       radius_m: radiusM,
       filter_category: category,
-      result_limit: limit,
-      is_free_only: isFreeOnly,
-      is_happening_now: isHappeningNow
+      result_limit: limit
     })
 
     if (error) {
