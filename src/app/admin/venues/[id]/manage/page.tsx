@@ -49,6 +49,7 @@ export default function VenueManagePage() {
 
    const [venue, setVenue] = useState<Venue | null>(null)
    const [events, setEvents] = useState<Event[]>([])
+   const [emailQueue, setEmailQueue] = useState<any[]>([])
    const [isLoading, setIsLoading] = useState(true)
    const [isOwner, setIsOwner] = useState(false)
 
@@ -106,6 +107,18 @@ export default function VenueManagePage() {
 
             if (eventsData) {
                setEvents(eventsData as Event[])
+            }
+
+            // Fetch pending email queue
+            const { data: queueData } = await supabase
+               .from('email_queue')
+               .select('id, status, parsed_data, received_at')
+               .eq('matched_venue_id', venueId)
+               .eq('status', 'pending')
+               .order('received_at', { ascending: false })
+
+            if (queueData) {
+               setEmailQueue(queueData)
             }
          } catch (err) {
             console.error('Error fetching venue:', err)
@@ -219,6 +232,50 @@ export default function VenueManagePage() {
       }
    }
 
+   // Approve pending email queue
+   const handleApproveEmailQueue = async (emailId: string) => {
+      try {
+         const response = await fetch(`/api/email-queue/${emailId}/approve`, {
+            method: 'POST'
+         })
+
+         if (!response.ok) throw new Error('Failed to approve email queue item')
+
+         setEmailQueue(prev => prev.filter(eq => eq.id !== emailId))
+         
+         const { data: eventsData } = await supabase
+            .from('events')
+            .select('*')
+            .eq('venue_id', venueId)
+            .order('starts_at', { ascending: true })
+
+         if (eventsData) setEvents(eventsData as Event[])
+      } catch (err) {
+         console.error('Approve email error:', err)
+         alert('Failed to approve email')
+      }
+   }
+
+   // Approve pending event
+   const handleApproveEvent = async (eventId: string) => {
+      try {
+         const response = await fetch(`/api/events/${eventId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'live' })
+         })
+
+         if (!response.ok) throw new Error('Failed to approve event')
+
+         setEvents(prev => prev.map(ev => 
+            ev.id === eventId ? { ...ev, status: 'live' } : ev
+         ))
+      } catch (err) {
+         console.error('Approve error:', err)
+         alert('Failed to approve event')
+      }
+   }
+
    if (authLoading || !user) {
       return (
          <div className="flex h-screen items-center justify-center bg-bg">
@@ -278,22 +335,59 @@ export default function VenueManagePage() {
                {/* Events List */}
                {isLoading ? (
                   <div className="text-muted">Loading events...</div>
-               ) : events.length === 0 ? (
-                  <div className="bg-surface2 border border-border rounded-lg p-8 text-center">
-                     <div className="text-4xl mb-4">📅</div>
-                     <p className="text-muted mb-4">No events yet</p>
-                     {isOwner && (
-                        <button
-                           onClick={() => setShowEventForm(true)}
-                           className="text-teal hover:underline"
-                        >
-                           Create your first event
-                        </button>
-                     )}
-                  </div>
                ) : (
-                  <div className="space-y-3">
-                     {events.map((event) => (
+                  <>
+                     {emailQueue.length > 0 && (
+                        <div className="mb-8">
+                           <h2 className="text-lg font-semibold mb-4 text-amber flex items-center gap-2">
+                              <span className="text-xl">📧</span>
+                              Pending Email Approvals ({emailQueue.length})
+                           </h2>
+                           <div className="space-y-3">
+                              {emailQueue.map((queue) => (
+                                 <div key={queue.id} className="bg-amber/10 border border-amber/30 rounded-lg p-4">
+                                    <div className="flex items-start justify-between">
+                                       <div>
+                                          <div className="flex items-center gap-2">
+                                             <h3 className="font-semibold text-amber-dim">{queue.parsed_data?.title || 'Unknown Event'}</h3>
+                                          </div>
+                                          <div className="text-xs text-amber mt-1">
+                                             Received {new Date(queue.received_at).toLocaleDateString()}
+                                          </div>
+                                       </div>
+                                       {isOwner && (
+                                          <button
+                                             onClick={() => handleApproveEmailQueue(queue.id)}
+                                             className="text-xs font-semibold bg-amber border-none text-bg px-3 py-1.5 rounded transition-opacity hover:opacity-90 cursor-pointer flex-shrink-0"
+                                          >
+                                             Approve Email
+                                          </button>
+                                       )}
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     )}
+
+                     {events.length === 0 && emailQueue.length === 0 ? (
+                        <div className="bg-surface2 border border-border rounded-lg p-8 text-center">
+                           <div className="text-4xl mb-4">📅</div>
+                           <p className="text-muted mb-4">No events yet</p>
+                           {isOwner && (
+                              <button
+                                 onClick={() => setShowEventForm(true)}
+                                 className="text-teal hover:underline"
+                              >
+                                 Create your first event
+                              </button>
+                           )}
+                        </div>
+                     ) : (
+                        <div>
+                           <h2 className="text-base font-semibold mb-4 text-muted">Active/Historical Events ({events.length})</h2>
+                           <div className="space-y-3">
+                              {events.map((event) => (
                         <div
                            key={event.id}
                            className="bg-surface2 border border-border rounded-lg p-4"
@@ -339,7 +433,10 @@ export default function VenueManagePage() {
                            </div>
                         </div>
                      ))}
-                  </div>
+                           </div>
+                        </div>
+                     )}
+                  </>
                )}
             </div>
          </main>

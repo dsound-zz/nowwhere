@@ -19,6 +19,8 @@ interface Venue {
    phone: string | null
    website: string | null
    rating: number | null
+   events?: { id: string, status: string }[]
+   email_queue?: { id: string, status: string }[]
 }
 
 interface FoursquareResult {
@@ -65,6 +67,7 @@ export default function AdminVenuesPage() {
    const [venues, setVenues] = useState<Venue[]>([])
    const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
    const [venueEvents, setVenueEvents] = useState<Event[]>([])
+   const [emailQueue, setEmailQueue] = useState<any[]>([])
    const [isLoading, setIsLoading] = useState(true)
 
    // Foursquare search state
@@ -113,7 +116,7 @@ export default function AdminVenuesPage() {
       const fetchVenues = async () => {
          const { data } = await supabase
             .from('venues')
-            .select('*')
+            .select('*, events(id, status), email_queue(id, status)')
             .order('name')
 
          if (data) setVenues(data as Venue[])
@@ -128,16 +131,26 @@ export default function AdminVenuesPage() {
       const fetchVenueEvents = async () => {
          if (!selectedVenue) {
             setVenueEvents([])
+            setEmailQueue([])
             return
          }
 
-         const { data } = await supabase
+         const { data: eventsData } = await supabase
             .from('events')
             .select('id, title, starts_at, ends_at, status, price_label')
             .eq('venue_id', selectedVenue.id)
             .order('starts_at', { ascending: false })
 
-         if (data) setVenueEvents(data as Event[])
+         if (eventsData) setVenueEvents(eventsData as Event[])
+
+         const { data: queueData } = await supabase
+            .from('email_queue')
+            .select('id, status, parsed_data, received_at')
+            .eq('matched_venue_id', selectedVenue.id)
+            .eq('status', 'pending')
+            .order('received_at', { ascending: false })
+
+         if (queueData) setEmailQueue(queueData)
       }
 
       fetchVenueEvents()
@@ -245,6 +258,80 @@ export default function AdminVenuesPage() {
       }
    }
 
+   // Approve pending event
+   const handleApproveEvent = async (eventId: string, e: React.MouseEvent) => {
+      e.stopPropagation()
+      try {
+         const response = await fetch(`/api/events/${eventId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'live' })
+         })
+
+         if (!response.ok) throw new Error('Failed to approve event')
+
+         // Update events list
+         setVenueEvents(prev => prev.map(ev => 
+            ev.id === eventId ? { ...ev, status: 'live' } : ev
+         ))
+
+         // Update venues list pending count
+         setVenues(prev => prev.map(v => {
+            if (v.id === selectedVenue?.id) {
+               return {
+                  ...v,
+                  events: v.events?.map(ev => 
+                     ev.id === eventId ? { ...ev, status: 'live' } : ev
+                  )
+               }
+            }
+            return v
+         }))
+      } catch (err) {
+         console.error('Approve error:', err)
+         alert('Failed to approve event')
+      }
+   }
+
+   // Approve pending email
+   const handleApproveEmailQueue = async (emailId: string, e: React.MouseEvent) => {
+      e.stopPropagation()
+      try {
+         const response = await fetch(`/api/email-queue/${emailId}/approve`, {
+            method: 'POST'
+         })
+
+         if (!response.ok) throw new Error('Failed to approve email queue item')
+
+         // Remove from email queue and trigger a refetch of venues so it picks up the new event
+         setEmailQueue(prev => prev.filter(eq => eq.id !== emailId))
+         
+         // Fast UI update: decrement pending count on the venues list
+         setVenues(prev => prev.map(v => {
+            if (v.id === selectedVenue?.id) {
+               return {
+                  ...v,
+                  email_queue: v.email_queue?.filter(eq => eq.id !== emailId)
+               }
+            }
+            return v
+         }))
+
+         // In a robust implementation, we would just fetch the single new event and add it to `venueEvents`,
+         // but since we want to be absolutely sure the UI matches, let's just refetch the venue's events entirely.
+         const { data: eventsData } = await supabase
+            .from('events')
+            .select('id, title, starts_at, ends_at, status, price_label')
+            .eq('venue_id', selectedVenue!.id)
+            .order('starts_at', { ascending: false })
+
+         if (eventsData) setVenueEvents(eventsData as Event[])
+      } catch (err) {
+         console.error('Approve email error:', err)
+         alert('Failed to approve email')
+      }
+   }
+
    if (authLoading || !user) {
       return (
          <div className="flex h-screen items-center justify-center bg-bg">
@@ -338,7 +425,12 @@ export default function AdminVenuesPage() {
                         <div className="text-muted text-sm">Loading venues...</div>
                      ) : (
                         <div className="space-y-2">
-                           {venues.map((venue) => (
+                           {venues.map((venue) => {
+                              const pendingEventCount = venue.events?.filter(e => e.status === 'pending').length || 0;
+                              const pendingEmailCount = venue.email_queue?.filter(e => e.status === 'pending').length || 0;
+                              const totalPending = pendingEventCount + pendingEmailCount;
+                              
+                              return (
                               <button
                                  key={venue.id}
                                  onClick={() => setSelectedVenue(venue)}
@@ -347,10 +439,17 @@ export default function AdminVenuesPage() {
                                     : 'border-border hover:border-border2'
                                     }`}
                               >
-                                 <div className="font-medium text-sm flex items-center gap-2">
-                                    {venue.name}
-                                    {venue.verified && (
-                                       <span className="text-green text-xs">✓</span>
+                                 <div className="font-medium text-sm flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-2">
+                                       {venue.name}
+                                       {venue.verified && (
+                                          <span className="text-green text-xs">✓</span>
+                                       )}
+                                    </div>
+                                    {totalPending > 0 && (
+                                       <span className="text-amber text-xs font-semibold flex items-center gap-1">
+                                          🚩 {totalPending} Pending
+                                       </span>
                                     )}
                                  </div>
                                  <div className="text-xs text-muted">
@@ -360,7 +459,7 @@ export default function AdminVenuesPage() {
                                     {venue.address}
                                  </div>
                               </button>
-                           ))}
+                           )})}
                         </div>
                      )}
                   </div>
@@ -410,20 +509,58 @@ export default function AdminVenuesPage() {
                               </button>
                            </div>
 
-                           {venueEvents.length === 0 ? (
+                           {emailQueue.length > 0 && (
+                              <div className="mb-4">
+                                 <h5 className="text-xs font-semibold text-amber uppercase tracking-wider mb-2">Pending Emails</h5>
+                                 <div className="space-y-2">
+                                    {emailQueue.map((queue) => (
+                                       <div key={queue.id} className="bg-amber/10 border border-amber/20 rounded-lg p-2">
+                                          <div className="flex justify-between items-start">
+                                             <div>
+                                                <div className="font-medium text-sm text-amber-dim">{queue.parsed_data?.title || 'Unknown Event'}</div>
+                                                <div className="text-xs text-amber/70 mt-1 flex items-center gap-1">
+                                                   📧 From inbound email
+                                                </div>
+                                             </div>
+                                             <button
+                                                onClick={(e) => handleApproveEmailQueue(queue.id, e)}
+                                                className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-amber text-bg transition-opacity hover:opacity-90 flex-shrink-0"
+                                             >
+                                                ✓ Approve
+                                             </button>
+                                          </div>
+                                       </div>
+                                    ))}
+                                 </div>
+                              </div>
+                           )}
+
+                           {venueEvents.length === 0 && emailQueue.length === 0 ? (
                               <p className="text-xs text-muted">No events yet</p>
                            ) : (
                               <div className="space-y-2">
                                  {venueEvents.map((event) => (
                                     <div key={event.id} className="bg-surface rounded-lg p-2">
-                                       <div className="font-medium text-sm">{event.title}</div>
-                                       <div className="text-xs text-muted">
-                                          {new Date(event.starts_at).toLocaleDateString()} · {event.price_label}
-                                       </div>
-                                       <div className={`text-xs mt-1 ${event.status === 'live' ? 'text-green' :
-                                          event.status === 'pending' ? 'text-amber' : 'text-muted'
-                                          }`}>
-                                          {event.status}
+                                       <div className="flex justify-between items-start">
+                                          <div>
+                                             <div className="font-medium text-sm">{event.title}</div>
+                                             <div className="text-xs text-muted">
+                                                {new Date(event.starts_at).toLocaleDateString()} · {event.price_label}
+                                             </div>
+                                             <div className={`text-xs mt-1 ${event.status === 'live' ? 'text-green' :
+                                                event.status === 'pending' ? 'text-amber' : 'text-muted'
+                                                }`}>
+                                                {event.status}
+                                             </div>
+                                          </div>
+                                          {event.status === 'pending' && (
+                                             <button
+                                                onClick={(e) => handleApproveEvent(event.id, e)}
+                                                className="text-[10px] font-semibold py-1 px-2.5 rounded-full border-none cursor-pointer bg-green text-[#0a1f15] transition-opacity hover:opacity-90"
+                                             >
+                                                ✓ Approve
+                                             </button>
+                                          )}
                                        </div>
                                     </div>
                                  ))}

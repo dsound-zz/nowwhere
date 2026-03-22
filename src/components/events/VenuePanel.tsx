@@ -56,15 +56,21 @@ export function VenuePanel({ onVenueClick }: VenuePanelProps) {
          if (data) setEmails(data as EmailQueueItem[])
       }
 
-      // Fetch active venues
+      // Fetch active venues that have live events
       const fetchVenues = async () => {
-         const { data } = await supabase
+         const { data, error } = await supabase
             .from('venues')
-            .select('id, name, category, vibe_tags')
+            // Use !inner join to ensure we only get venues that have matching active events
+            .select('id, name, category, vibe_tags, events!inner(id)')
             .eq('verified', true)
+            .eq('events.status', 'live')
             .limit(10)
-
-         if (data) setVenues(data as Venue[])
+            
+         if (error) {
+            console.error('Failed to fetch venues:', error)
+         } else if (data) {
+            setVenues(data as Venue[])
+         }
       }
 
       fetchEmails()

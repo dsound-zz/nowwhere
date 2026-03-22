@@ -4,7 +4,9 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Sidebar } from '@/components/layout/Sidebar'
 
-export default function AuthErrorPage() {
+import { Suspense } from 'react'
+
+function AuthErrorContent() {
    const searchParams = useSearchParams()
    const error = searchParams.get('error')
    const errorDescription = searchParams.get('error_description')
@@ -49,5 +51,13 @@ export default function AuthErrorPage() {
             </div>
          </main>
       </div>
+   )
+}
+
+export default function AuthErrorPage() {
+   return (
+      <Suspense fallback={<div className="flex h-screen items-center justify-center text-muted">Loading...</div>}>
+         <AuthErrorContent />
+      </Suspense>
    )
 }

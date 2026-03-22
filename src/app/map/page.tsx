@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import mapboxgl from 'mapbox-gl'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -42,7 +42,7 @@ const categoryColors: Record<string, string> = {
    social: '#f06449',
 }
 
-export default function MapPage() {
+function MapContent() {
    const searchParams = useSearchParams()
    const [location, setLocation] = useState<UserLocation | null>(null)
    const [events, setEvents] = useState<Event[]>([])
@@ -324,5 +324,13 @@ export default function MapPage() {
             />
          )}
       </div>
+   )
+}
+
+export default function MapPage() {
+   return (
+      <Suspense fallback={<div className="flex h-screen items-center justify-center text-muted">Loading map...</div>}>
+         <MapContent />
+      </Suspense>
    )
 }
