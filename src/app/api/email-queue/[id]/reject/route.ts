@@ -35,8 +35,9 @@ export async function POST(
     const queueItem = emailQueue as Record<string, unknown>
 
     if (queueItem.status !== 'pending') {
+      console.error(`[reject] Email ${emailId} has status '${queueItem.status}', expected 'pending'`)
       return NextResponse.json(
-        { error: 'Email already processed' },
+        { error: `Email already processed (status: ${queueItem.status})` },
         { status: 400 }
       )
     }

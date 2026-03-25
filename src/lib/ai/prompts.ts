@@ -3,13 +3,15 @@
  * Used by: inbound-email route and venue-scraper tool
  */
 
-export const EVENT_EXTRACTION_PROMPT = `You are an event data extractor for NowHere, a local events app. 
+export const EVENT_EXTRACTION_PROMPT = `You are an event data extractor for NowHere, a local events app.
 Extract structured event information from venue emails.
 Always respond with valid JSON only — no preamble, no markdown.
 
 If a field cannot be determined, use null.
-For starts_at and ends_at, output ISO 8601. 
-Infer the year from context (assume upcoming, not past).
+For starts_at and ends_at, output ISO 8601 timestamps with timezone.
+IMPORTANT: The user message includes the current date and year. Use this to correctly determine the year for event dates.
+If an email mentions a specific date (e.g., "March 28th"), use the year from the current date provided.
+Always assume events are upcoming (not in the past) unless explicitly stated otherwise.
 For price_label: 'Free' if free, '$X' if fixed price, '$' if cheap, '$$' if moderate.
 For category choose one of: music, food, art, sport, social, other.
 For tags, extract up to 5 short descriptive tags (e.g. 'jazz', 'late night', 'outdoor').

@@ -2,6 +2,69 @@
 
 ## Recent Changes
 
+### March 25, 2026 - Email Approval Flow & AI Date Parsing Improvements
+
+**Problem Solved:**
+
+1. Admin Accuracy Dashboard was implemented but not accessible in UI (RLS policy issue)
+2. Pending emails not showing in Email Review Queue
+3. LLM was parsing dates with incorrect years (e.g., parsing "March 28, 2026" as 2025)
+4. Email approval flow didn't auto-create venues or prevent duplicates
+
+**Root Causes:**
+
+1. **RLS Policy Mismatch** - `email_queue` table only allows `service_role` access, but review page tried to query directly using client-side Supabase client
+2. **Missing Date Context** - AI prompt asked LLM to infer year but didn't provide current date/year
+3. **No Venue Auto-Creation** - Approved emails from unmatched senders created events with `venue_id: null`
+4. **No Duplicate Detection** - Approving same email twice would create duplicate venues and events
+
+**Fixes Applied:**
+
+1. **Admin Accuracy Dashboard Access:**
+   - Created [`src/app/api/admin/email-queue/route.ts`](src/app/api/admin/email-queue/route.ts) - New API endpoint using service client
+   - Updated [`src/app/admin/review/page.tsx`](src/app/admin/review/page.tsx) - Fetches via API instead of direct query
+   - Added navigation links across all admin pages (venues, review, accuracy)
+
+2. **AI Date Parsing Improvements:**
+   - Updated [`src/lib/ai/prompts.ts`](src/lib/ai/prompts.ts) - Enhanced prompt with explicit date usage instructions
+   - Updated [`src/app/api/inbound-email/route.ts`](src/app/api/inbound-email/route.ts) - Includes current date/year in AI requests
+   - Updated [`src/lib/ingestion/tools/venue-scraper.ts`](src/lib/ingestion/tools/venue-scraper.ts) - Added date context for website scraping
+   - Updated [`src/app/api/email-queue/[id]/reparse/route.ts`](src/app/api/email-queue/[id]/reparse/route.ts) - Added date context to reparse
+
+3. **Email Approval Flow Enhancements** ([`src/app/api/email-queue/[id]/approve/route.ts`](src/app/api/email-queue/[id]/approve/route.ts)):
+   - **Venue Deduplication**: Checks if venue with sender's email exists before creating
+   - **Auto-Create Venues**: Creates new unverified venues from unmatched email senders with:
+     - Name extracted from email address
+     - Geocoded location using Mapbox API (if address provided)
+     - `verified: false` status
+   - **Event Deduplication**: Prevents duplicate events using:
+     - Same `venue_id` + Same `title` + `starts_at` within ±6 hours window
+     - Returns success with `duplicate: true` flag instead of creating duplicate
+
+4. **Error Handling Improvements:**
+   - Updated [`src/app/api/email-queue/[id]/reject/route.ts`](src/app/api/email-queue/[id]/reject/route.ts) - Better error messages with actual status
+   - Updated [`src/app/api/email-queue/[id]/approve/route.ts`](src/app/api/email-queue/[id]/approve/route.ts) - Better error messages with actual status
+
+**Complete Email Approval Flow:**
+
+1. **Email Reception** → LLM parses → Stores in `email_queue` with `status: 'pending'`
+2. **Admin Reviews** → Views in `/admin/review` dashboard
+3. **Admin Approves**:
+   - Checks if venue with sender email exists
+   - If not → Creates new venue (auto-generated name, geocoded location, `verified: false`)
+   - Checks for duplicate events (same venue + title + time within 6 hours)
+   - If not duplicate → Creates event with `status: 'live'` (immediately visible to users)
+   - If duplicate → Marks email approved but skips event creation
+4. **Users See Event** → Shows in feed and map immediately
+
+**Key Learnings:**
+
+- RLS policies require API endpoints with service clients when client-side queries are restricted
+- LLMs need explicit date context (current date/year) to correctly infer event dates
+- Duplicate prevention should check both venues (by email) and events (by venue + title + time window)
+- Auto-created venues should be marked `verified: false` to distinguish from manually added venues
+- Geocoding addresses during venue creation improves event discoverability on maps
+
 ### March 21, 2026 - Venue Detail Panel Map & Event Filters Fix
 
 **Problem Solved:**

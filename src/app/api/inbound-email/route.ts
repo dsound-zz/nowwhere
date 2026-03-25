@@ -12,8 +12,16 @@ interface InboundEmail {
 }
 
 async function parseEmailWithAI(fromAddress: string, subject: string, body: string, defaultAddress?: string | null) {
+  // Include current date/time to help LLM correctly infer years
+  const now = new Date()
+  const currentDate = now.toISOString()
+  const currentYear = now.getFullYear()
+  
   const extracted = await extractEventWithAI(
-    `From: ${fromAddress}\nSubject: ${subject}\nBody: ${body}`
+    `Current date: ${currentDate} (Year: ${currentYear})
+From: ${fromAddress}
+Subject: ${subject}
+Body: ${body}`
   )
 
   if (!extracted) {
@@ -152,11 +160,6 @@ export async function POST(request: NextRequest) {
       parsed_data: parsedData,
       matched_venue_id: matchedVenueId || null,
       status: matchedVenueId ? 'pending' : 'pending',
-    }
-
-    // Insert location using EWKT string which Supabase mapping converts into ST_SetSRID(ST_MakePoint(...), 4326)
-    if (geocodedLocation) {
-      queuePayload.location = geocodedLocation
     }
 
     // Save to email queue

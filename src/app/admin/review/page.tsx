@@ -70,36 +70,51 @@ export default function AdminReviewPage() {
    // Fetch email queue
    useEffect(() => {
       const fetchEmailQueue = async () => {
-         const { data } = await supabase
-            .from('email_queue')
-            .select('*')
-            .eq('status', 'pending')
-            .order('received_at', { ascending: false })
+         try {
+            // Fetch from API endpoint instead of direct database query
+            const response = await fetch('/api/admin/email-queue')
 
-         if (data) {
-            setEmailQueue(data as EmailQueueItem[])
+            if (!response.ok) {
+               throw new Error('Failed to fetch email queue')
+            }
 
-            // Fetch venue names for matched venues
-            const venueIds = data
-               .map(item => item.matched_venue_id)
-               .filter(Boolean) as string[]
+            const { data } = await response.json()
 
-            if (venueIds.length > 0) {
-               const { data: venueData } = await supabase
-                  .from('venues')
-                  .select('id, name')
-                  .in('id', venueIds)
+            if (data) {
+               // Parse parsed_data if it's a string
+               const processedData = data.map((item: any) => ({
+                  ...item,
+                  parsed_data: typeof item.parsed_data === 'string'
+                     ? JSON.parse(item.parsed_data)
+                     : item.parsed_data
+               }))
+               setEmailQueue(processedData as EmailQueueItem[])
 
-               if (venueData) {
-                  const venueMap: Record<string, Venue> = {}
-                  venueData.forEach(v => {
-                     venueMap[v.id] = v
-                  })
-                  setVenues(venueMap)
+               // Fetch venue names for matched venues
+               const venueIds = data
+                  .map((item: any) => item.matched_venue_id)
+                  .filter(Boolean) as string[]
+
+               if (venueIds.length > 0) {
+                  const { data: venueData } = await supabase
+                     .from('venues')
+                     .select('id, name')
+                     .in('id', venueIds)
+
+                  if (venueData) {
+                     const venueMap: Record<string, Venue> = {}
+                     venueData.forEach(v => {
+                        venueMap[v.id] = v
+                     })
+                     setVenues(venueMap)
+                  }
                }
             }
+         } catch (error) {
+            console.error('Error fetching email queue:', error)
+         } finally {
+            setIsLoading(false)
          }
-         setIsLoading(false)
       }
 
       if (user) fetchEmailQueue()
@@ -202,12 +217,21 @@ export default function AdminReviewPage() {
                   <h1 className="font-display font-bold text-2xl">
                      Email <span className="text-teal">Review Queue</span>
                   </h1>
-                  <a
-                     href="/admin/accuracy"
-                     className="text-sm text-teal hover:underline font-medium"
-                  >
-                     View Accuracy Stats →
-                  </a>
+                  <div className="flex items-center gap-3">
+                     <a
+                        href="/admin/venues"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        ← Venue Admin
+                     </a>
+                     <span className="text-border">|</span>
+                     <a
+                        href="/admin/accuracy"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        AI Accuracy Stats →
+                     </a>
+                  </div>
                </div>
 
                {isLoading ? (
@@ -236,8 +260,8 @@ export default function AdminReviewPage() {
                                  <div
                                     key={email.id}
                                     className={`bg-surface2 border rounded-lg p-4 transition-colors cursor-pointer ${selectedEmail?.id === email.id
-                                          ? 'border-teal bg-teal/5'
-                                          : 'border-border hover:border-border2'
+                                       ? 'border-teal bg-teal/5'
+                                       : 'border-border hover:border-border2'
                                        }`}
                                     onClick={() => setSelectedEmail(email)}
                                  >

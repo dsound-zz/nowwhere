@@ -94,9 +94,18 @@ export async function scrapeVenueWebsite(
 
     console.log(`[venue-scraper] Extracted ${truncatedContent.length} chars, sending to LLM`)
 
+    // Include current date/time to help LLM correctly infer years
+    const now = new Date()
+    const currentDate = now.toISOString()
+    const currentYear = now.getFullYear()
+
     // Use shared LLM extraction
     const extracted = await extractEventWithAI(
-      `Venue Website URL: ${url}\n\nExtracted Content:\n${truncatedContent}`
+      `Current date: ${currentDate} (Year: ${currentYear})
+Venue Website URL: ${url}
+
+Extracted Content:
+${truncatedContent}`
     )
 
     if (!extracted) {

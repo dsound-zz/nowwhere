@@ -85,12 +85,21 @@ export default function AdminAccuracyPage() {
                   <h1 className="font-display font-bold text-2xl">
                      AI Accuracy <span className="text-teal">Dashboard</span>
                   </h1>
-                  <a
-                     href="/admin/review"
-                     className="text-sm text-teal hover:underline font-medium"
-                  >
-                     ← Back to Review Queue
-                  </a>
+                  <div className="flex items-center gap-3">
+                     <a
+                        href="/admin/venues"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        ← Venue Admin
+                     </a>
+                     <span className="text-border">|</span>
+                     <a
+                        href="/admin/review"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        Email Review Queue
+                     </a>
+                  </div>
                </div>
 
                {isLoading ? (

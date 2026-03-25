@@ -48,7 +48,7 @@ create table events (
   address text,
   status text default 'pending',     -- 'pending' | 'live' | 'expired'
   source text default 'email',       -- 'email' | 'manual' | 'scraped'
-  raw_email_id uuid references email_queue(id),
+  raw_email_id uuid references email_queue(id) on delete set null,
   created_at timestamptz default now()
 );
 

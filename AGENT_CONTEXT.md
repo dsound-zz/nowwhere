@@ -17,10 +17,32 @@ you join an event. Events auto-expire when they end.
 
 ## Current AI Layer
 
-- /api/inbound-email: parses venue emails with Llama 3.3, extracts structured event data
+**Email Parsing:**
+
+- `/api/inbound-email`: parses venue emails with Llama 3.3, extracts structured event data
   (title, description, emoji, category, tags, starts_at, ends_at, price_label, address,
   confidence 0-1), stores in email_queue table for human review before publishing
+- Shared prompt system in `src/lib/ai/prompts.ts` (EVENT_EXTRACTION_PROMPT)
+- Centralized LLM calls via `src/lib/ai/index.ts` (extractEventWithAI, fallbackParse)
 - Fallback: keyword-based category detection if Together AI API is unavailable
+
+**Multi-Source Ingestion Agent (Phase 2):**
+
+- `/api/cron/ingest-events`: runs every 2 hours, orchestrates three parallel data sources:
+  1. **Eventbrite API** (`src/lib/ingestion/tools/eventbrite.ts`): fetches nearby events via
+     Eventbrite Events Search API, normalizes to ParsedEvent format, confidence 0.9
+  2. **Venue Website Scraper** (`src/lib/ingestion/tools/venue-scraper.ts`): scrapes verified
+     venue websites (up to 10), extracts text from HTML, uses LLM for event extraction
+  3. **Email Queue** (`src/lib/ingestion/tools/email-queue.ts`): pulls pending emails from
+     email_queue table (up to 50), already in ParsedEvent format
+- Agent orchestration in `src/lib/ingestion/agent.ts`:
+  - Runs all three tools in parallel with Promise.allSettled()
+  - Deduplicates events (title >85% similar + time within 30min + same address)
+  - Routes based on confidence: ≥0.85 + eventbrite source = auto-publish to events table,
+    all others = queue to email_queue for human review
+  - Geocodes addresses using Mapbox API
+- Protected by CRON_SECRET environment variable
+- Currently runs for NYC coordinates (40.7128, -74.0060) within 1 mile radius
 
 ## Database Schema (key tables)
 

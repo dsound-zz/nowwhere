@@ -271,7 +271,7 @@ export default function AdminVenuesPage() {
          if (!response.ok) throw new Error('Failed to approve event')
 
          // Update events list
-         setVenueEvents(prev => prev.map(ev => 
+         setVenueEvents(prev => prev.map(ev =>
             ev.id === eventId ? { ...ev, status: 'live' } : ev
          ))
 
@@ -280,7 +280,7 @@ export default function AdminVenuesPage() {
             if (v.id === selectedVenue?.id) {
                return {
                   ...v,
-                  events: v.events?.map(ev => 
+                  events: v.events?.map(ev =>
                      ev.id === eventId ? { ...ev, status: 'live' } : ev
                   )
                }
@@ -305,7 +305,7 @@ export default function AdminVenuesPage() {
 
          // Remove from email queue and trigger a refetch of venues so it picks up the new event
          setEmailQueue(prev => prev.filter(eq => eq.id !== emailId))
-         
+
          // Fast UI update: decrement pending count on the venues list
          setVenues(prev => prev.map(v => {
             if (v.id === selectedVenue?.id) {
@@ -346,9 +346,26 @@ export default function AdminVenuesPage() {
 
          <main className="flex-1 overflow-y-auto">
             <div className="p-7">
-               <h1 className="font-display font-bold text-2xl mb-6">
-                  Venue <span className="text-teal">Admin</span>
-               </h1>
+               <div className="flex items-center justify-between mb-6">
+                  <h1 className="font-display font-bold text-2xl">
+                     Venue <span className="text-teal">Admin</span>
+                  </h1>
+                  <div className="flex items-center gap-3">
+                     <a
+                        href="/admin/review"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        Email Review Queue
+                     </a>
+                     <span className="text-border">|</span>
+                     <a
+                        href="/admin/accuracy"
+                        className="text-sm text-teal hover:underline font-medium"
+                     >
+                        AI Accuracy Stats
+                     </a>
+                  </div>
+               </div>
 
                {/* Foursquare Search */}
                <div className="bg-surface2 border border-border rounded-lg p-4 mb-6">
@@ -429,37 +446,38 @@ export default function AdminVenuesPage() {
                               const pendingEventCount = venue.events?.filter(e => e.status === 'pending').length || 0;
                               const pendingEmailCount = venue.email_queue?.filter(e => e.status === 'pending').length || 0;
                               const totalPending = pendingEventCount + pendingEmailCount;
-                              
+
                               return (
-                              <button
-                                 key={venue.id}
-                                 onClick={() => setSelectedVenue(venue)}
-                                 className={`w-full text-left bg-surface2 border rounded-lg p-3 transition-colors ${selectedVenue?.id === venue.id
-                                    ? 'border-teal bg-teal/10'
-                                    : 'border-border hover:border-border2'
-                                    }`}
-                              >
-                                 <div className="font-medium text-sm flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2">
-                                       {venue.name}
-                                       {venue.verified && (
-                                          <span className="text-green text-xs">✓</span>
+                                 <button
+                                    key={venue.id}
+                                    onClick={() => setSelectedVenue(venue)}
+                                    className={`w-full text-left bg-surface2 border rounded-lg p-3 transition-colors ${selectedVenue?.id === venue.id
+                                       ? 'border-teal bg-teal/10'
+                                       : 'border-border hover:border-border2'
+                                       }`}
+                                 >
+                                    <div className="font-medium text-sm flex items-center justify-between gap-2">
+                                       <div className="flex items-center gap-2">
+                                          {venue.name}
+                                          {venue.verified && (
+                                             <span className="text-green text-xs">✓</span>
+                                          )}
+                                       </div>
+                                       {totalPending > 0 && (
+                                          <span className="text-amber text-xs font-semibold flex items-center gap-1">
+                                             🚩 {totalPending} Pending
+                                          </span>
                                        )}
                                     </div>
-                                    {totalPending > 0 && (
-                                       <span className="text-amber text-xs font-semibold flex items-center gap-1">
-                                          🚩 {totalPending} Pending
-                                       </span>
-                                    )}
-                                 </div>
-                                 <div className="text-xs text-muted">
-                                    {venue.category && (
-                                       <span className="text-teal mr-2">{venue.category}</span>
-                                    )}
-                                    {venue.address}
-                                 </div>
-                              </button>
-                           )})}
+                                    <div className="text-xs text-muted">
+                                       {venue.category && (
+                                          <span className="text-teal mr-2">{venue.category}</span>
+                                       )}
+                                       {venue.address}
+                                    </div>
+                                 </button>
+                              )
+                           })}
                         </div>
                      )}
                   </div>

@@ -119,11 +119,17 @@ async function parseEmailWithAI(
     return getFallbackParse(subject, body, fromAddress)
   }
 
+  // Include current date/time to help LLM correctly infer years
+  const now = new Date()
+  const currentDate = now.toISOString()
+  const currentYear = now.getFullYear()
+
   const strictInstructions = strictMode
     ? `STRICT PARSING RULES:
 - Only extract information that is EXPLICITLY stated in the email
 - If a field cannot be determined with high confidence, leave it null
 - Dates must be in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
+- IMPORTANT: Use the current year (${currentYear}) when parsing dates unless a different year is explicitly mentioned
 - Categories must be one of: music, food, art, sport, social
 - Price must be extracted exactly as written (e.g., "Free", "$15", "$20-30")
 - Do NOT hallucinate or guess any information
@@ -132,6 +138,8 @@ async function parseEmailWithAI(
     : ''
 
   const prompt = `You are an event email parser. Extract structured event data from the following email.
+
+CURRENT DATE: ${currentDate} (Year: ${currentYear})
 
 ${strictInstructions}
 
