@@ -125,6 +125,9 @@ export interface Database {
           parsed_data: Json | null
           matched_venue_id: string | null
           status: 'pending' | 'approved' | 'rejected'
+          admin_outcome: 'approved' | 'rejected' | null
+          outcome_at: string | null
+          confidence: number | null
           received_at: string
         }
         Insert: {
@@ -136,6 +139,9 @@ export interface Database {
           parsed_data?: Json | null
           matched_venue_id?: string | null
           status?: 'pending' | 'approved' | 'rejected'
+          admin_outcome?: 'approved' | 'rejected' | null
+          outcome_at?: string | null
+          confidence?: number | null
           received_at?: string
         }
         Update: {
@@ -147,6 +153,9 @@ export interface Database {
           parsed_data?: Json | null
           matched_venue_id?: string | null
           status?: 'pending' | 'approved' | 'rejected'
+          admin_outcome?: 'approved' | 'rejected' | null
+          outcome_at?: string | null
+          confidence?: number | null
           received_at?: string
         }
       }

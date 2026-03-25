@@ -41,8 +41,12 @@ export async function POST(
       )
     }
 
-    // Update with rejection reason if provided
-    const updateData: Record<string, unknown> = { status: 'rejected' }
+    // Update with rejection reason if provided and add admin outcome tracking
+    const updateData: Record<string, unknown> = {
+      status: 'rejected',
+      admin_outcome: 'rejected',
+      outcome_at: new Date().toISOString()
+    }
     
     if (reason) {
       const parsedData = (queueItem.parsed_data as Record<string, unknown>) || {}

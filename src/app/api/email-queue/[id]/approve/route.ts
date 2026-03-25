@@ -81,10 +81,14 @@ export async function POST(
       )
     }
 
-    // Update email queue status
+    // Update email queue status with admin outcome tracking
     await supabase
       .from('email_queue')
-      .update({ status: 'approved' })
+      .update({
+        status: 'approved',
+        admin_outcome: 'approved',
+        outcome_at: new Date().toISOString()
+      })
       .eq('id', emailId)
 
     const eventRecord = event as Record<string, unknown>
